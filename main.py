@@ -93,7 +93,8 @@ else:
     
 
 #%%
-
+A_c_star_660 = [Inputs['A_c_star_660'][0]]
+E_c_star_660 = [Inputs['E_c_star_660'][0]]
 Astar_NAP_443 = [Inputs['Astar_NAP_443'][0]]
 Bstar_NAP_555 = [Inputs['Bstar_NAP_555'][0]]
 S_NAP = [Inputs['S_NAP'][0]]
@@ -224,7 +225,7 @@ if CREATE_BATCHRUN_FILES:
                                             
                                             DF.at[Id] = [str('%04d'%Id), chl, nap, cdom, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap, spf_ff_bb_b_nap, spf_ff_bb_b_chl]
                                             
-                                            ab.create_data_files(str('%04d'%Id), chl, nap, cdom, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
+                                            ab.create_data_files(str('%04d'%Id), chl, nap, cdom, A_c_star_660, E_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
                                             
                                             hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
                                             
@@ -280,10 +281,11 @@ DF.to_excel('Inputs/Id_%s.xlsx'%Tag, index = False)
 #orig_dir = "/home/santiago/Documents/HE60/output/HydroLight/digital/"
 HL_dir = "/home/santiago/Documents/HE60/output/HydroLight/"
 this_dir = "/home/santiago/Documents/tesis/HL/"
+path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
 
 Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
 
-op.create_output(HL_dir, path, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view)
+op.create_output(HL_dir, path, path_printouts, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view)
 
 # ghl.Graficar(Tag)
 

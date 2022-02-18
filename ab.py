@@ -11,8 +11,8 @@ import os
 path = os.path.dirname(os.path.realpath('__file__'))
 sys.path.append(path)
 
-def Voss_1992(l, CHL):
-    c_660= 0.314*(CHL**0.57)    # Voss 1992
+def c_star(l, CHL, A, E):
+    c_660= A*(CHL**E)
 
     if(CHL==0):
         c_star = l*0
@@ -28,22 +28,39 @@ def Voss_1992(l, CHL):
     
     return c_star
 
-def Morel_2002(l, CHL):
-    c_660 = 0.407*(CHL**0.795)  # Morel 2002
+# def Voss_1992(l, CHL):
+#     c_660= 0.314*(CHL**0.57)    # Voss 1992
 
-    if(CHL==0):
-        c_star = l*0
-    else:
-        if(CHL<2):
-            v = 0.5*(np.log10(CHL)-0.3)
-        else:
-            v = 0
+#     if(CHL==0):
+#         c_star = l*0
+#     else:
+#         if(CHL<2):
+#             v = 0.5*(np.log10(CHL)-0.3)
+#         else:
+#             v = 0
     
-        c = c_660 * (l/660)**v
+#         c = c_660 * (l/660)**v
     
-        c_star = c/CHL
+#         c_star = c/CHL
     
-    return c_star
+#     return c_star
+
+# def Morel_2002(l, CHL):
+#     c_660 = 0.407*(CHL**0.795)  # Morel 2002
+
+#     if(CHL==0):
+#         c_star = l*0
+#     else:
+#         if(CHL<2):
+#             v = 0.5*(np.log10(CHL)-0.3)
+#         else:
+#             v = 0
+    
+#         c = c_660 * (l/660)**v
+    
+#         c_star = c/CHL
+    
+#     return c_star
 
 
 def save_to_file(filename, x, y):
@@ -62,7 +79,7 @@ def save_to_file(filename, x, y):
 
 #%%
 
-def create_data_files(Id, CHL, NAP, CDOM, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
+def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
     
     ############################    
     # CHL:
@@ -78,7 +95,7 @@ def create_data_files(Id, CHL, NAP, CDOM, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S
     else:
         a_star_CHL = a_CHL
 
-    c_star_CHL = Voss_1992(wavelength_CHL, CHL)
+    c_star_CHL = c_star(wavelength_CHL, CHL, A_c_star_660, E_c_star_660)
     
     b_star_CHL = c_star_CHL - a_star_CHL
     

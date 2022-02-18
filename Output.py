@@ -6,12 +6,18 @@ Este módulo lee las salidas de HL y crea un único archivo con los ID de las si
 import pandas as pd
 import numpy as np
 import os
+import sys
 #from io import StringIO
 import re
 
+import glob
+import check_dir as cd
 
-def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view):
-
+def create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view):
+    
+    print('theta_view = %g,\tphi_view = %g'%(theta_view, phi_view))    
+    cd.check_dir(path + os.sep + 'Outputs')
+    
     # Sheet 0:
     #%%
     Sheets = {'Sheet': ['Description'],
@@ -50,8 +56,9 @@ def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta
     
     #WAVELENGTHS = np.arange(350,952.5, 2.5)
 
-    I = pd.read_excel(this_dir + os.sep + 'Inputs/Id_%s.xlsx'%Tag, engine = 'openpyxl')
-    print('Output file:\t' + Output_file_name + '.xlsx')
+    I = pd.read_excel(path + os.sep + 'Inputs/Id_%s.xlsx'%Tag, engine = 'openpyxl')
+    print(Tag)
+    
     for Id in range(Id_max):
         print('\r%4d/%4d'%(Id+1, Id_max), end='')
 
@@ -75,7 +82,7 @@ def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta
         INPUTS.loc[Id, 'SPF_FF_BB_B_CHL'] = I['SPF_FF_BB_B_CHL'].at[Id]        
         
         # Proot:
-        FILE = HL_dir + 'printout/P%04d_%s.txt'%(Id, Tag)
+        FILE = path_printouts + os.sep +'P%04d_%s.txt'%(Id, Tag)
         #print(FILE)
         with open(FILE, "r") as file:
             S = file.read() # String con todo el contenido del TXT.
@@ -96,8 +103,8 @@ def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta
 
                 lines = a.split('\n')
                 # Eliminación de los espacios al comienzo de cada línea:
-                for i in range(len(lines)):
-                    lines[i] = lines[i].strip()
+                for j in range(len(lines)):
+                    lines[j] = lines[j].strip()
                 
                 a = '\n'.join(lines)
                 a = re.sub(' +', ' ', a)
@@ -130,7 +137,7 @@ def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta
         ########
         
         # Droot:
-        FILE = HL_dir + 'digital/D%04d_%s.txt'%(Id, Tag)
+        FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + 'D%04d_%s.txt'%(Id, Tag)
         #print(FILE)
         with open(FILE, "r") as file:
             S = file.read() # String con todo el contenido del TXT.
@@ -216,7 +223,11 @@ def create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta
     
     # Guardamos los DataFrames en el Excel:
     
-    writer = pd.ExcelWriter(this_dir + '/Outputs/' + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx', engine='openpyxl')
+    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
+    
+    print('\nOutput file:', output_filename)
+    
+    writer = pd.ExcelWriter(output_filename, engine='openpyxl')
     
     README.to_excel(writer, sheet_name='README', header=True)#, index=False)
     INPUTS.to_excel(writer, sheet_name='INPUTS', header=True, index=False)
@@ -249,25 +260,33 @@ if __name__=='__main__':
     # para generar la salida nuevamente con otros ángulos de observación:
     # Tag = 'Tesis_v7'
     Tag = 'AD_CCRR'
+    # Tag = 'PRUEBA'
     
-    HL_dir = "/home/santiago/Documents/HE60/output/HydroLight/"
-    this_dir = "/home/santiago/Documents/tesis/HL/"
+    path = os.path.dirname(os.path.realpath('__file__'))
+    sys.path.append(path)
     
-    Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
+    path_HE60 = path.split(os.sep)
+    del path_HE60[len(path_HE60)-1]
+    path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
+
+    # path_printouts = "/home/santiago/Documents/HE60/output/HydroLight/"
+    path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
+    # path = "/home/santiago/Documents/tesis/HL/"
     
-    import glob
+    Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
     
-    files = glob.glob(HL_dir + 'printout/P*' + Tag + '.txt')
+    files = glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt')
     
     Id_min = 0
     Id_max = len(files)
     
     # [theta_view, phi_view] = [40, 135] # tesis
-    # [theta_view, phi_view] = [0, 90] # Nechad et al. (2010)
-    
+    [theta_view, phi_view] = [0, 0] # Nechad et al. (2010) corregido.
+    # [theta_view, phi_view] = [0, 90] # Nechad et al. (2010) no existe.    
+
     # ATENCIÓN: NO TODOS LOS PARES (theta_view, phi_view) SON POSIBLES.
     # LA LISTA DE LAS POSIBILIDADES ESTÁN EN LOS ARCHIVOS DE PRINTOUT.
-    theta_view = 0 # posible: 0, 10, 20, 30, 40, 50, 60, 70, 80, 87.5.
-    phi_view = 0 # posible: 0, 90 135, 180.
+    # theta_view = 0 # posible: 0, 10, 20, 30, 40, 50, 60, 70, 80, 87.5.
+    # phi_view = 0 # posible: 0, 90 135, 180.
     
-    create_output(HL_dir, this_dir, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view)
+    create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Output_filename, theta_view, phi_view)

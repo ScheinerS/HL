@@ -169,10 +169,12 @@ if __name__ == "__main__":
     CHL = 0
     NAP = 1
     CDOM = 1
+    A_c_star_660 = 0.314
+    E_c_star_660 = 0.57
     ASTAR_NAP_443 = 0.04
     Bstar_NAP_555 = 0.51
     S_NAP = -0.0123
     S_CDOM = -0.0176
     GAMMA_C_NAP = -0.3749
     
-    create_data_files(Id, CHL, NAP, CDOM, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)
+    create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)

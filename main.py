@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 import os
 import shutil
+import itertools
 
 path = os.path.dirname(os.path.realpath('__file__'))
 sys.path.append(path)
@@ -19,7 +20,7 @@ import check_dir as cd
 
 # Flags:
 CREATE_BATCHRUN_FILES = 1
-RUN = 1
+RUN = 0
 
 #%%
 # Verificación del directorio HE60:
@@ -90,27 +91,27 @@ if len(CDOM_steps)>1:
     CDOM = CDOM_steps
 else:
     CDOM = geometric_progression(Inputs['CDOM443_min'][0], Inputs['CDOM443_max'][0], Inputs['CDOM443_factor'][0])
-    
-
+        
 #%%
 A_c_star_660 = [Inputs['A_c_star_660'][0]]
 E_c_star_660 = [Inputs['E_c_star_660'][0]]
 Astar_NAP_443 = [Inputs['Astar_NAP_443'][0]]
+Astar_NAP_offset = [float(i) for i in str(Inputs['Astar_NAP_offset'][0]).split(',')]
 Bstar_NAP_555 = [Inputs['Bstar_NAP_555'][0]]
 S_NAP = [Inputs['S_NAP'][0]]
-S_CDOM = [Inputs['S_CDOM'][0]]
 GAMMA_C_NAP = [Inputs['GAMMA_C_NAP'][0]]
+S_CDOM = [Inputs['S_CDOM'][0]]
 SPF_FF_BB_B_NAP = [Inputs['SPF_FF_BB_B_NAP'][0]]
 SPF_FF_BB_B_CHL = [Inputs['SPF_FF_BB_B_CHL'][0]]
 
-suntheta = Inputs['suntheta'][0]
-sunphi = Inputs['sunphi'][0]
+suntheta = [Inputs['suntheta'][0]]
+sunphi = [Inputs['sunphi'][0]]
 
-theta_view = Inputs['theta_view'][0]
-phi_view = Inputs['phi_view'][0]
+theta_view = [Inputs['theta_view'][0]]
+phi_view = [Inputs['phi_view'][0]]
 
-cloud = Inputs['cloud'][0]
-windspeed = Inputs['windspeed'][0]
+cloud = [Inputs['cloud'][0]]
+windspeed = [Inputs['windspeed'][0]]
 
 # Conversión a float:
 def values_to_float(LIST):
@@ -145,8 +146,10 @@ print('\nNAP:\n', NAP)
 print(50*'-')
 
 print('\nAstar_NAP_443:\n', Astar_NAP_443)
+print('\nAstar_NAP_offset:\n', Astar_NAP_offset)
 print('\nBstar_NAP_555:\n', Bstar_NAP_555)
 print('\nS_NAP:\n', S_NAP)
+print('\nGAMMA_C_NAP:\n', GAMMA_C_NAP)
 print('\nS_CDOM:\n', S_CDOM)
 
 print(50*'-')
@@ -158,6 +161,8 @@ print(50*'-')
 
 print('\nsuntheta:\n', suntheta)
 print('\nsunphi:\n', sunphi)
+print('\ntheta_view:\n', theta_view)
+print('\nphi_view:\n', phi_view)
 print('\ncloud:\n', cloud)
 print('\nwindspeed:\n', windspeed)
 
@@ -174,22 +179,26 @@ if is_file:
 
 #%%
 
-
-# steps = len(CHL)*len(CDOM)*len(NAP)
-
 DF = pd.DataFrame()
 
 DF['Id'] = None
 DF['CHL'] = None
 DF['NAP'] = None
 DF['CDOM'] = None
+DF['A_c_star_660'] = None
+DF['E_c_star_660'] = None
 DF['a*_NAP(443)'] = None
-DF['Bstar_NAP_443'] = None
+DF['Astar_NAP_offset'] = None
+DF['Bstar_NAP_555'] = None
 DF['S_NAP'] = None
-DF['S_CDOM'] = None
 DF['GAMMA_C_NAP'] = None
+DF['S_CDOM'] = None
 DF['SPF_FF_BB_B_NAP'] = None
 DF['SPF_FF_BB_B_CHL'] = None
+DF['suntheta'] = None
+DF['sunphi'] = None
+DF['cloud'] = None
+DF['windspeed'] = None
 
 #%%
 
@@ -207,30 +216,72 @@ del paths, PATH
 
 Id_min = 0
 
+combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
+# print(combination)
+Id_max = len(combination)
+
+DF.columns
+
 if CREATE_BATCHRUN_FILES:
-    print('\nCreating HL batchruns:')
     Id = Id_min
-    for chl in CHL:
-        for nap in NAP:
-            for cdom in CDOM:
-                for astar_nap in Astar_NAP_443:
-                    for bstar_nap_555 in Bstar_NAP_555:
-                        for s_nap in S_NAP:
-                            for s_cdom in S_CDOM:
-                                for gamma_c_nap in GAMMA_C_NAP:
-                                    for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
-                                        for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
+    for comb in combination:
+        print('\r%4d'%(Id+1), end='')
+        
+        line = [str('%04d'%Id)]
+        line.extend(list(comb))
+        
+        DF.at[Id] = line
+        
+        chl = line[1]
+        cdom = line[2]
+        nap = line[3]
+        a_c_star_660 = line[4]
+        e_c_star_660 = line[5]
+        astar_nap = line[6]
+        astar_nap_offset = line[7]
+        bstar_nap_555= line[8]
+        s_nap = line[9]
+        gamma_c_nap = line[10]
+        s_cdom = line[11]
+        spf_ff_bb_b_nap = line[12]
+        spf_ff_bb_b_chl = line[13]
+        suntheta = line[14]
+        sunphi = line[15]
+        cloud = line[16]
+        windspeed = line[17]       
+        
+        # A ESTA FUNCIÓN LE FALTA EL OFFSET DEL NAP (FALTA IMPLEMENTAR EN LA FUNCIÓN TAMBIÉN):
+        ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
+        
+        hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
+        
+        Id += 1
+
+#%%
+
+# Este bloque va a ser reemplazado por el anterior:
+# if CREATE_BATCHRUN_FILES:
+#     print('\nCreating HL batchruns:')
+#     Id = Id_min
+#     for chl in CHL:
+#         for nap in NAP:
+#             for cdom in CDOM:
+#                 for astar_nap in Astar_NAP_443:
+#                     for bstar_nap_555 in Bstar_NAP_555:
+#                         for s_nap in S_NAP:
+#                             for s_cdom in S_CDOM:
+#                                 for gamma_c_nap in GAMMA_C_NAP:
+#                                     for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
+#                                         for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
     
-                                            print('\r%4d'%(Id+1), end='')
+#                                             # print('\r%4d'%(Id+1), end='')                                            
+#                                             # DF.at[Id] = [str('%04d'%Id), chl, nap, cdom, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap, spf_ff_bb_b_nap, spf_ff_bb_b_chl]
+#                                             # ab.create_data_files(str('%04d'%Id), chl, nap, cdom, A_c_star_660, E_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
                                             
-                                            DF.at[Id] = [str('%04d'%Id), chl, nap, cdom, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap, spf_ff_bb_b_nap, spf_ff_bb_b_chl]
+#                                             # hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
                                             
-                                            ab.create_data_files(str('%04d'%Id), chl, nap, cdom, A_c_star_660, E_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
-                                            
-                                            hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
-                                            
-                                            Id += 1
-    Id_max = Id
+#                                             Id += 1
+#     Id_max = Id
     
     
 # Transferencia de los archivos:

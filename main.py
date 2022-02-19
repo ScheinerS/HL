@@ -285,8 +285,7 @@ path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep 
 
 Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
 
-op.create_output(HL_dir, path, path_printouts, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view)
-
+op.create_output(HL_dir, path, path_printouts, Id_min, Id_max, Tag, Comment, Output_file_name, theta_view, phi_view)
 # ghl.Graficar(Tag)
 
 # Gráficos:

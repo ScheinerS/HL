@@ -9,18 +9,24 @@ import os
 import sys
 #from io import StringIO
 import re
+from datetime import datetime
 
 import glob
 import check_dir as cd
 
-def create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Output_file_name, theta_view, phi_view):
+def create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Comment, Output_file_name, theta_view, phi_view):
     
     print('theta_view = %g,\tphi_view = %g'%(theta_view, phi_view))    
     cd.check_dir(path + os.sep + 'Outputs')
     
     # Sheet 0:
     #%%
-    Sheets = {'Sheet': ['Description'],
+    date = datetime.today().strftime('%Y-%m-%d')
+    
+    Sheets = {'Tag': [Tag],
+              'Comment': [Comment],
+              'Date': [date],
+              'Sheet': ['Description'],
               'INPUTS': ['Variables used when setting up H5 input files'],
               'ALL_rhow': ['Rhow reflectance'],
               'ALL_a_nw': ['Total absorption (a_pig + a_nap + a_cdom)'],
@@ -259,11 +265,17 @@ if __name__=='__main__':
     
     # para generar la salida nuevamente con otros ángulos de observación:
     # Tag = 'Tesis_v7'
-    Tag = 'AD_CCRR'
-    # Tag = 'PRUEBA'
+    # Tag = 'AD_CCRR'
+    Tag = 'PRUEBA'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
+    
+    path_inputs = path + os.sep + 'Inputs'
+    
+    Inputs = pd.read_excel(path_inputs + os.sep + 'Inputs_%s.xlsx'%Tag, engine = 'openpyxl')
+    
+    Comment = Inputs['Comentario'][0]
     
     path_HE60 = path.split(os.sep)
     del path_HE60[len(path_HE60)-1]
@@ -289,4 +301,4 @@ if __name__=='__main__':
     # theta_view = 0 # posible: 0, 10, 20, 30, 40, 50, 60, 70, 80, 87.5.
     # phi_view = 0 # posible: 0, 90 135, 180.
     
-    create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Output_filename, theta_view, phi_view)
+    create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Comment, Output_filename, theta_view, phi_view)

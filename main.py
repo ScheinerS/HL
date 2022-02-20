@@ -20,7 +20,7 @@ import check_dir as cd
 
 # Flags:
 CREATE_BATCHRUN_FILES = 1
-RUN = 0
+RUN = 1
 
 #%%
 # Verificación del directorio HE60:
@@ -237,7 +237,7 @@ if CREATE_BATCHRUN_FILES:
         nap = line[3]
         a_c_star_660 = line[4]
         e_c_star_660 = line[5]
-        astar_nap = line[6]
+        astar_nap_443 = line[6]
         astar_nap_offset = line[7]
         bstar_nap_555= line[8]
         s_nap = line[9]
@@ -251,8 +251,8 @@ if CREATE_BATCHRUN_FILES:
         windspeed = line[17]       
         
         # A ESTA FUNCIÓN LE FALTA EL OFFSET DEL NAP (FALTA IMPLEMENTAR EN LA FUNCIÓN TAMBIÉN):
-        ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
-        
+        ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
+            
         hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
         
         Id += 1

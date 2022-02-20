@@ -79,8 +79,7 @@ def save_to_file(filename, x, y):
 
 #%%
 
-def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
-    
+def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
     ############################    
     # CHL:
     
@@ -109,11 +108,10 @@ def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_
     wavelength_NAP = np.arange(300, 1002.5, 2.5)
     
     # a:
-    a_443 = ASTAR_NAP_443
-    a_star_NAP = a_443 * np.exp(S_NAP*(wavelength_NAP-443))
+    a_star_NAP = ASTAR_NAP_443 * np.exp(S_NAP*(wavelength_NAP-443)) + Astar_NAP_offset
     
     # b:
-    a_555 = a_443 * np.exp(S_NAP*(555-443))
+    a_555 = ASTAR_NAP_443 * np.exp(S_NAP*(555-443))
     b_555 = Bstar_NAP_555 # m^2/g - Nechad et al. (2015), tabla 11.
     c_555 = a_555 + b_555
     
@@ -172,9 +170,10 @@ if __name__ == "__main__":
     A_c_star_660 = 0.314
     E_c_star_660 = 0.57
     ASTAR_NAP_443 = 0.04
+    Astar_NAP_offset = 0.012
     Bstar_NAP_555 = 0.51
     S_NAP = -0.0123
     S_CDOM = -0.0176
     GAMMA_C_NAP = -0.3749
     
-    create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)
+    create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)

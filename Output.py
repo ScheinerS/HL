@@ -77,15 +77,19 @@ def create_output(path_HE60, path, path_printouts, Id_min, Id_max, Tag, Comment,
         # Sheet 1:
         
         INPUTS.loc[Id, 'Id'] = str('%04d'%Id)
-        INPUTS.loc[Id, 'CHL'] = I['CHL'].at[Id]
-        INPUTS.loc[Id, 'NAP'] = I['NAP'].at[Id]
-        INPUTS.loc[Id, 'CDOM'] = I['CDOM'].at[Id]
-        INPUTS.loc[Id, 'a*_NAP(443)'] = I['a*_NAP(443)'].at[Id]
-        INPUTS.loc[Id, 'S_NAP'] = I['S_NAP'].at[Id]
-        INPUTS.loc[Id, 'S_CDOM'] = I['S_CDOM'].at[Id]
-        INPUTS.loc[Id, 'GAMMA_C_NAP'] = I['GAMMA_C_NAP'].at[Id]
-        INPUTS.loc[Id, 'SPF_FF_BB_B_NAP'] = I['SPF_FF_BB_B_NAP'].at[Id]
-        INPUTS.loc[Id, 'SPF_FF_BB_B_CHL'] = I['SPF_FF_BB_B_CHL'].at[Id]        
+        
+        for var in I.columns:
+            INPUTS.loc[Id, var] = I[var].at[Id]
+            
+        # INPUTS.loc[Id, 'CHL'] = I['CHL'].at[Id]
+        # INPUTS.loc[Id, 'NAP'] = I['NAP'].at[Id]
+        # INPUTS.loc[Id, 'CDOM'] = I['CDOM'].at[Id]
+        # INPUTS.loc[Id, 'a*_NAP(443)'] = I['a*_NAP(443)'].at[Id]
+        # INPUTS.loc[Id, 'S_NAP'] = I['S_NAP'].at[Id]
+        # INPUTS.loc[Id, 'S_CDOM'] = I['S_CDOM'].at[Id]
+        # INPUTS.loc[Id, 'GAMMA_C_NAP'] = I['GAMMA_C_NAP'].at[Id]
+        # INPUTS.loc[Id, 'SPF_FF_BB_B_NAP'] = I['SPF_FF_BB_B_NAP'].at[Id]
+        # INPUTS.loc[Id, 'SPF_FF_BB_B_CHL'] = I['SPF_FF_BB_B_CHL'].at[Id]        
         
         # Proot:
         FILE = path_printouts + os.sep +'P%04d_%s.txt'%(Id, Tag)

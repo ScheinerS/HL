@@ -31,7 +31,6 @@ path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 cd.check_dir_HE60(path_HE60)
 cd.check_dir(path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
-    
 #%%
 Inputs = pd.read_excel('Input.xlsx', engine = 'openpyxl')
 
@@ -214,7 +213,8 @@ del paths, PATH
 #%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
 
-Id_min = 0
+# Id_min = 0
+Id = 0
 
 combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
 # print(combination)
@@ -223,7 +223,7 @@ Id_max = len(combination)
 DF.columns
 
 if CREATE_BATCHRUN_FILES:
-    Id = Id_min
+    # Id = Id_min
     for comb in combination:
         print('\r%4d'%(Id+1), end='')
         
@@ -299,28 +299,39 @@ tf.transfer(path + '/DATA', path_HE60 + os.sep + 'data/DATA_SS')
 
 #%%
 
-if RUN:
-    print('\nRunning:')
-    #os.system('cd %s'%batchruns_dir)
-    
+if RUN:    
     dest_dir = path_HE60 + os.sep + 'backend'
     os.chdir(dest_dir)
+    # print('Running:')
+    for Id in range(Id_max):
+        print('\r%4d'%(Id+1), end='')
+        os.system('./HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id))
+        
+#%%
+# Reemplazado por el bloque anterior:
+    
+# if RUN:
+#     print('\nRunning:')
+#     #os.system('cd %s'%batchruns_dir)
+    
+#     dest_dir = path_HE60 + os.sep + 'backend'
+#     os.chdir(dest_dir)
 
-    Id = Id_min
-    for chl in CHL:
-        for nap in NAP:
-            for cdom in CDOM:
-                for astar_nap in Astar_NAP_443:
-                    for bstar_nap_555 in Bstar_NAP_555:
-                        for s_nap in S_NAP:
-                            for s_cdom in S_CDOM:
-                                for gamma_c_nap in GAMMA_C_NAP:
-                                    for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
-                                        for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
-                                            os.system('./HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id))
-                                            Id += 1
+#     Id = 0
+#     for chl in CHL:
+#         for nap in NAP:
+#             for cdom in CDOM:
+#                 for astar_nap in Astar_NAP_443:
+#                     for bstar_nap_555 in Bstar_NAP_555:
+#                         for s_nap in S_NAP:
+#                             for s_cdom in S_CDOM:
+#                                 for gamma_c_nap in GAMMA_C_NAP:
+#                                     for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
+#                                         for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
+#                                             os.system('./HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id))
+#                                             Id += 1
 
-    print('\nDone.\n')
+#     print('\nDone.\n')
 
 #%%
 
@@ -329,17 +340,14 @@ os.chdir(path)
 cd.check_dir(path + os.sep + 'Inputs')
 DF.to_excel('Inputs/Id_%s.xlsx'%Tag, index = False)
 
-#orig_dir = "/home/santiago/Documents/HE60/output/HydroLight/digital/"
-HL_dir = "/home/santiago/Documents/HE60/output/HydroLight/"
-this_dir = "/home/santiago/Documents/tesis/HL/"
 path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
 
-Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
+Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
 
-op.create_output(HL_dir, path, path_printouts, Id_min, Id_max, Tag, Comment, Output_file_name, theta_view, phi_view)
+for t_v in theta_view:
+    for p_v in phi_view:
+        op.create_output(path_HE60, path, path_printouts, Tag, Comment, t_v, p_v)
+
 # ghl.Graficar(Tag)
 
-# Gráficos:
-# Clorofila.Graficar(Tag)
-
-print('Cantidad de simulaciones:', Id_max)
+# print('Cantidad de simulaciones:', Id_max)

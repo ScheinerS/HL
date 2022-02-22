@@ -6,16 +6,18 @@ Para graficar las salidas de HydroLight.
 
 import pandas as pd
 import numpy as np
-#from scipy.interpolate import interp1d
+import os
+import sys
 import matplotlib.pyplot as plt
 from matplotlib import rcParams, cycler
+import check_dir as cd
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 plt.close('all')
 
-def Graficar(Tag, **save):
-    filename = 'Outputs/Output_%s.xlsx'%Tag
+def Graficar(Tag, theta_view, phi_view, **save):
+    filename = 'Outputs' + os.sep + 'Output_' + Tag + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
     xl = pd.ExcelFile(filename)
     xl.sheet_names # see all sheet names
     sheets = xl.sheet_names[2:]
@@ -45,13 +47,19 @@ def Graficar(Tag, **save):
         #plt.legend()
         plt.grid()
         plt.show()
-    
-        plt.savefig('Graficos/Gráficos del output/%s_%s.png'%(Tag, sheet))
-        #plt.pause(1)
-        
-    plt.close('all')
+        if save:
+            path = os.path.dirname(os.path.realpath('__file__'))
+            sys.path.append(path)
+            cd.check_dir(path + os.sep + 'Graficos')
+            save_path = path + os.sep + 'Graficos' + os.sep + 'RAW'
+            cd.check_dir(save_path)
+            plt.savefig(save_path + os.sep + '%s_%s.png'%(Tag, sheet))
 
 
 if __name__=='__main__':
-    Tag = 'Tesis_v1'
-    Graficar(Tag)
+    # Tag = 'AD_CCRR'
+    # Tag = 'Tesis_v7'
+    Tag = 'B'
+    # [theta_view, phi_view] = [0, 0]
+    [theta_view, phi_view] = [40, 135]
+    Graficar(Tag, theta_view, phi_view, save=False)

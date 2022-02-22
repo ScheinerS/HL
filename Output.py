@@ -15,7 +15,7 @@ import glob
 import check_dir as cd
 
 def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view):
-    
+    #%%
     print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))    
     cd.check_dir(path + os.sep + 'Outputs')
     
@@ -24,7 +24,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
     # Sheet 0:
-    #%%
+    
     date = datetime.today().strftime('%Y-%m-%d')
     
     Sheets = {'Tag': [Tag],
@@ -111,6 +111,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
                     lines[j] = lines[j].strip()
                 
                 a = '\n'.join(lines)
+                a = re.sub('total up', 'total-up', a)
                 a = re.sub(' +', ' ', a)
                 a = re.sub(' +', ';', a)
                 
@@ -248,7 +249,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     writer.save()
     print('\nDone.')
-
+#%%
 if __name__=='__main__':
     
     '''
@@ -259,7 +260,8 @@ if __name__=='__main__':
     # para generar la salida nuevamente con otros ángulos de observación:
     # Tag = 'Tesis_v7'
     # Tag = 'AD_CCRR'
-    Tag = 'PRUEBA'
+    # Tag = 'PRUEBA'
+    Tag = 'B'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
@@ -276,14 +278,14 @@ if __name__=='__main__':
 
     path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
     
-    Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
+    # Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
     
     files = glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt')
     
     Id_min = 0
     Id_max = len(files)
     
-    [theta_view, phi_view] = [40, 135] # tesis
-    # [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
+    # [theta_view, phi_view] = [40, 135] # tesis
+    [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
     
     create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)

@@ -14,13 +14,14 @@ import HLbatchruns as hlb
 import transfer_files as tf
 import Output as op
 import check_dir as cd
-# import Graficar_HL as ghl
+import Graficar_HL as ghl
 
 #%%
 
 # Flags:
 CREATE_BATCHRUN_FILES = 1
 RUN = 1
+PLOT = 1
 
 #%%
 # Verificación del directorio HE60:
@@ -40,7 +41,7 @@ Comment = Inputs['Comentario'][0]
 # Back up del Input:
 path_inputs = path + os.sep + 'Inputs'
 cd.check_dir(path_inputs)
-shutil.copyfile('Input.xlsx', path_inputs + os.sep + 'Inputs_%s.xlsx'%Tag)
+shutil.copyfile('Input.xlsx', path_inputs + os.sep + 'Input_%s.xlsx'%Tag)
 
 def geometric_progression(start, stop, factor):
     # Geometric progression starting at from 'start' to 'stop' where a(i+1)=factor*a(i).
@@ -100,8 +101,8 @@ Bstar_NAP_555 = [Inputs['Bstar_NAP_555'][0]]
 S_NAP = [Inputs['S_NAP'][0]]
 GAMMA_C_NAP = [Inputs['GAMMA_C_NAP'][0]]
 S_CDOM = [Inputs['S_CDOM'][0]]
-SPF_FF_BB_B_NAP = [Inputs['SPF_FF_BB_B_NAP'][0]]
-SPF_FF_BB_B_CHL = [Inputs['SPF_FF_BB_B_CHL'][0]]
+SPF_FF_BB_B_NAP = [float(i) for i in str(Inputs['SPF_FF_BB_B_NAP'][0]).split(',')]
+SPF_FF_BB_B_CHL = [float(i) for i in str(Inputs['SPF_FF_BB_B_CHL'][0]).split(',')]
 
 suntheta = [Inputs['suntheta'][0]]
 sunphi = [Inputs['sunphi'][0]]
@@ -170,7 +171,7 @@ print(50*'-')
 input('Continue (ENTER)?')
 
 # Chequeo de sobreescritura:
-output_file = 'Output_' + Tag + '.xlsx'
+output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
 is_file = os.path.isfile(output_file)
 if is_file:
     print('\n"%s" already exists.'%output_file)
@@ -213,22 +214,17 @@ del paths, PATH
 #%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
 
-# Id_min = 0
-Id = 0
-
 combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
-# print(combination)
+
 Id_max = len(combination)
 
-DF.columns
-
 if CREATE_BATCHRUN_FILES:
-    # Id = Id_min
-    for comb in combination:
+    for Id in range(Id_max):
+
         print('\r%4d'%(Id+1), end='')
         
         line = [str('%04d'%Id)]
-        line.extend(list(comb))
+        line.extend(list(combination[Id]))
         
         DF.at[Id] = line
         
@@ -250,40 +246,12 @@ if CREATE_BATCHRUN_FILES:
         cloud = line[16]
         windspeed = line[17]       
         
-        # A ESTA FUNCIÓN LE FALTA EL OFFSET DEL NAP (FALTA IMPLEMENTAR EN LA FUNCIÓN TAMBIÉN):
         ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
-            
+        
         hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
         
-        Id += 1
-
 #%%
 
-# Este bloque va a ser reemplazado por el anterior:
-# if CREATE_BATCHRUN_FILES:
-#     print('\nCreating HL batchruns:')
-#     Id = Id_min
-#     for chl in CHL:
-#         for nap in NAP:
-#             for cdom in CDOM:
-#                 for astar_nap in Astar_NAP_443:
-#                     for bstar_nap_555 in Bstar_NAP_555:
-#                         for s_nap in S_NAP:
-#                             for s_cdom in S_CDOM:
-#                                 for gamma_c_nap in GAMMA_C_NAP:
-#                                     for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
-#                                         for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
-    
-#                                             # print('\r%4d'%(Id+1), end='')                                            
-#                                             # DF.at[Id] = [str('%04d'%Id), chl, nap, cdom, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap, spf_ff_bb_b_nap, spf_ff_bb_b_chl]
-#                                             # ab.create_data_files(str('%04d'%Id), chl, nap, cdom, A_c_star_660, E_c_star_660, astar_nap, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
-                                            
-#                                             # hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
-                                            
-#                                             Id += 1
-#     Id_max = Id
-    
-    
 # Transferencia de los archivos:
     
 # Batchruns:
@@ -305,33 +273,8 @@ if RUN:
     # print('Running:')
     for Id in range(Id_max):
         print('\r%4d'%(Id+1), end='')
-        os.system('./HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id))
-        
-#%%
-# Reemplazado por el bloque anterior:
-    
-# if RUN:
-#     print('\nRunning:')
-#     #os.system('cd %s'%batchruns_dir)
-    
-#     dest_dir = path_HE60 + os.sep + 'backend'
-#     os.chdir(dest_dir)
-
-#     Id = 0
-#     for chl in CHL:
-#         for nap in NAP:
-#             for cdom in CDOM:
-#                 for astar_nap in Astar_NAP_443:
-#                     for bstar_nap_555 in Bstar_NAP_555:
-#                         for s_nap in S_NAP:
-#                             for s_cdom in S_CDOM:
-#                                 for gamma_c_nap in GAMMA_C_NAP:
-#                                     for spf_ff_bb_b_nap in SPF_FF_BB_B_NAP:
-#                                         for spf_ff_bb_b_chl in SPF_FF_BB_B_CHL:
-#                                             os.system('./HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id))
-#                                             Id += 1
-
-#     print('\nDone.\n')
+        batchfile = './HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id)
+        os.system(batchfile)
 
 #%%
 
@@ -347,7 +290,5 @@ Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
 for t_v in theta_view:
     for p_v in phi_view:
         op.create_output(path_HE60, path, path_printouts, Tag, Comment, t_v, p_v)
-
-# ghl.Graficar(Tag)
-
-# print('Cantidad de simulaciones:', Id_max)
+        if PLOT:
+            ghl.Graficar(Tag, t_v, p_v, save=False)

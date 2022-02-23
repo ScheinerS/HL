@@ -19,8 +19,9 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 1
+CREATE_BATCHRUN_FILES = 0
 RUN = 1
+CREATE_OUTPUT = 0
 PLOT = 0
 
 #%%
@@ -148,9 +149,9 @@ print('Id_max_run:\t%6d'%Id_max_run)
 
 print(50*'-')
 
-print('\nCHL:\n', CHL)
-print('\nCDOM:\n', CDOM)
-print('\nNAP:\n', NAP)
+print('\nCHL (%d values):\n'%len(CHL), CHL)
+print('\nCDOM (%d values):\n'%len(CDOM), CDOM)
+print('\nNAP (%d values):\n'%len(NAP), NAP)
 
 print(50*'-')
 
@@ -227,6 +228,9 @@ combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660,
 
 Id_max = len(combination)
 
+# Corrección en caso de que Id_max_run>Id_max:
+Id_max_run = min(Id_max_run, Id_max)
+
 if CREATE_BATCHRUN_FILES:
     for Id in range(Id_max):
 
@@ -297,6 +301,7 @@ Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
 
 for t_v in theta_view:
     for p_v in phi_view:
-        op.create_output(path_HE60, path, path_printouts, Tag, Comment, t_v, p_v)
+        if CREATE_OUTPUT:
+            op.create_output(path_HE60, path, path_printouts, Tag, Comment, t_v, p_v)
         if PLOT:
             ghl.Graficar(Tag, t_v, p_v, save=False)

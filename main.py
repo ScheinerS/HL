@@ -21,7 +21,7 @@ import Graficar_HL as ghl
 # Flags:
 CREATE_BATCHRUN_FILES = 1
 RUN = 1
-PLOT = 1
+PLOT = 0
 
 #%%
 # Verificación del directorio HE60:
@@ -37,6 +37,10 @@ Inputs = pd.read_excel('Input.xlsx', engine = 'openpyxl')
 
 Tag = Inputs['Etiqueta'][0]
 Comment = Inputs['Comentario'][0]
+
+# Límites para las simulaciones:
+Id_min_run = int(Inputs['Id_min_run'][0])
+Id_max_run = int(Inputs['Id_max_run'][0])
 
 # Back up del Input:
 path_inputs = path + os.sep + 'Inputs'
@@ -136,6 +140,11 @@ print(50*'-')
 
 print('Tag:\t', Tag)
 print('Comment:\t', Comment)
+
+print(50*'-')
+
+print('Id_min_run:\t%6d'%Id_min_run)
+print('Id_max_run:\t%6d'%Id_max_run)
 
 print(50*'-')
 
@@ -270,8 +279,7 @@ tf.transfer(path + '/DATA', path_HE60 + os.sep + 'data/DATA_SS')
 if RUN:    
     dest_dir = path_HE60 + os.sep + 'backend'
     os.chdir(dest_dir)
-    # print('Running:')
-    for Id in range(Id_max):
+    for Id in range(Id_min_run, Id_max_run):
         print('\r%4d'%(Id+1), end='')
         batchfile = './HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id)
         os.system(batchfile)

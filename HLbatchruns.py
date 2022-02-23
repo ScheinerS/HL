@@ -159,7 +159,8 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     ########################################
     
     #RECORD 7: Inelastic scattering parameters
-    Record[7] = '0, 0, 0, 0, 2' # con fluorescencia: '0, 1, 0, 0, 2'
+    fluorescence = 1 # sin: 0, con: 1.
+    Record[7] = '0, %d, 0, 0, 2'%fluorescence
     
     ########################################
     

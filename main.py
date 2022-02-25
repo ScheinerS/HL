@@ -20,7 +20,7 @@ import Graficar_HL as ghl
 
 # Flags:
 CREATE_BATCHRUN_FILES = 0
-RUN = 0
+RUN = 1
 CREATE_OUTPUT = 0
 PLOT = 0
 
@@ -30,7 +30,8 @@ path_HE60 = path.split(os.sep)
 del path_HE60[len(path_HE60)-1]
 path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 
-cd.check_dir_HE60(path_HE60)
+if cd.check_dir_HE60(path_HE60):
+    sys.exit()
 cd.check_dir(path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
 #%%
@@ -201,13 +202,13 @@ DF['windspeed'] = None
 #%%
 
 # Verificación de directorios:
-PATH = '/home/santiago/Documents'
-paths = [PATH + '/HE60/data/DATA_SS', PATH + '/tesis/HL/batchruns',  PATH + '/tesis/HL/DATA']
+# PATH = '/home/santiago/Documents'
+# paths = [PATH + '/HE60/data/DATA_SS', PATH + '/tesis/HL/batchruns',  PATH + '/tesis/HL/DATA']
 
-for p in paths:
-    tf.check_dir(p)
+# for p in paths:
+#     tf.check_dir(p)
 
-del paths, PATH
+# del paths, PATH
 
 #%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):

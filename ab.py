@@ -83,7 +83,7 @@ def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_
     ############################    
     # CHL:
     
-    midUVabs = pd.read_csv('data' + os.sep + 'AE_midUVabs.txt', sep='    ', skiprows=11)
+    midUVabs = pd.read_csv('data' + os.sep + 'AE_midUVabs.txt', engine ='python', sep='    ', skiprows=11)
     midUVabs.columns = ['lambda', 'A', 'E']
     midUVabs.drop(205, inplace=True)
     

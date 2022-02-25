@@ -43,7 +43,7 @@ def Graficar(Tag, theta_view, phi_view, **save):
     
         plt.xlabel(r'$\lambda$')
         plt.ylabel(r'%s'%sheet.split('_')[1])
-        plt.title(r'%s'%sheet.replace('_', ' '))
+        plt.title(r'%s [%s]'%(sheet.replace('_', ' '), Tag))
         #plt.legend()
         plt.grid()
         plt.show()
@@ -59,7 +59,7 @@ def Graficar(Tag, theta_view, phi_view, **save):
 if __name__=='__main__':
     # Tag = 'AD_CCRR'
     # Tag = 'Tesis_v7'
-    Tag = 'B'
-    # [theta_view, phi_view] = [0, 0]
-    [theta_view, phi_view] = [40, 135]
+    Tag = 'v8'
+    [theta_view, phi_view] = [0, 0]
+    # [theta_view, phi_view] = [40, 135]
     Graficar(Tag, theta_view, phi_view, save=False)

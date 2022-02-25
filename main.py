@@ -20,7 +20,7 @@ import Graficar_HL as ghl
 
 # Flags:
 CREATE_BATCHRUN_FILES = 0
-RUN = 1
+RUN = 0
 CREATE_OUTPUT = 0
 PLOT = 0
 
@@ -58,11 +58,6 @@ def geometric_progression(start, stop, factor):
     gp = np.append(0,gp)
     return gp
     
-# start = 10
-# stop = 100
-# factor = 5
-# geometric_progression(start, stop, factor)
-
 # Bloque para reconocer pasos no regulares en el barrido:
 
 CHL_steps = str(Inputs['CHL_factor'][0]).split(',')
@@ -180,13 +175,6 @@ print(50*'-')
 
 input('Continue (ENTER)?')
 
-# Chequeo de sobreescritura:
-output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
-is_file = os.path.isfile(output_file)
-if is_file:
-    print('\n"%s" already exists.'%output_file)
-    input('Overwrite (ENTER)?')
-
 #%%
 
 DF = pd.DataFrame()
@@ -262,7 +250,10 @@ if CREATE_BATCHRUN_FILES:
         ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
         
         hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
-        
+    
+    # Archivo de Id:
+    cd.check_dir(path + os.sep + 'Inputs')
+    DF.to_excel(path + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, index = False)
 #%%
 
 # Transferencia de los archivos:
@@ -291,13 +282,11 @@ if RUN:
 #%%
 
 # Regresamos al directorio original de trabajo:
-os.chdir(path)
-cd.check_dir(path + os.sep + 'Inputs')
-DF.to_excel('Inputs/Id_%s.xlsx'%Tag, index = False)
+# os.chdir(path) # Esto creo que ya no es necesario. REVISAR.
 
 path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
 
-Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
+Output_filename = 'Output_' + Tag
 
 for t_v in theta_view:
     for p_v in phi_view:

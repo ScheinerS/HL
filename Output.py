@@ -14,15 +14,36 @@ from datetime import datetime
 import glob
 import check_dir as cd
 
+#%%
+def check_warnings(WARNINGS, Id, S):
+    
+    S = S.split('***** BEGIN WARNING MESSAGES FOR INPUT DATA FILES *****')[1]
+    S = S.split('***** END WARNING MESSAGES FOR INPUT DATA FILES *****')[0]
+    S = re.sub('\n', '', S).strip()
+    
+    if not (S == 'No files were read with data ranges less than the run depth and wavelength ranges.'):
+        WARNINGS.loc[Id, 'Warnings'] = S
+    
+#%%
 def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view):
     #%%
     print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))    
     cd.check_dir(path + os.sep + 'Outputs')
     
+    Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
+    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
+    
+    # Chequeo de sobreescritura:
+    # output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
+    is_file = os.path.isfile(output_filename)
+    if is_file:
+        print('\n"%s" already exists.'%output_filename)
+        input('Overwrite (ENTER)?')     
+    
     files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
     Id_max = len(files)
     
-    Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
+
     # Sheet 0:
     
     date = datetime.today().strftime('%Y-%m-%d')
@@ -69,6 +90,8 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     I = pd.read_excel(path + os.sep + 'Inputs/Id_%s.xlsx'%Tag, engine = 'openpyxl')
     print(Tag)
     
+    WARNINGS = pd.DataFrame()
+    
     for Id in range(Id_max):
         print('\r%4d/%4d'%(Id+1, Id_max), end='')
 
@@ -90,6 +113,10 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
         # print(FILE)
         with open(FILE, "r") as file:
             S = file.read() # String con todo el contenido del TXT.
+            
+            # Búsqueda de warnings:
+            check_warnings(WARNINGS, Id, S)
+            
             # Comienzo de los bloques:
             S = S.split('Output for wavelength band') # El TXT queda dividido en bloques S[i].
             
@@ -221,9 +248,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
 
     #######
     
-    # Guardamos los DataFrames en el Excel:
-    
-    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
+    # Guardamos los DataFrames en el Excel:  
     
     print('\nOutput file:', output_filename)
     
@@ -249,6 +274,9 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     writer.save()
     print('\nDone.')
+    
+    if len(WARNINGS)>0:
+        print(WARNINGS)
 #%%
 if __name__=='__main__':
     
@@ -261,14 +289,14 @@ if __name__=='__main__':
     # Tag = 'Tesis_v7'
     # Tag = 'AD_CCRR'
     # Tag = 'PRUEBA'
-    Tag = 'B'
+    Tag = 'v8'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
     
     path_inputs = path + os.sep + 'Inputs'
     
-    Inputs = pd.read_excel(path_inputs + os.sep + 'Inputs_%s.xlsx'%Tag, engine = 'openpyxl')
+    Inputs = pd.read_excel(path_inputs + os.sep + 'Input_%s.xlsx'%Tag, engine = 'openpyxl')
     
     Comment = Inputs['Comentario'][0]
     
@@ -289,3 +317,4 @@ if __name__=='__main__':
     [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
     
     create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)
+    

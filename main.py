@@ -30,8 +30,7 @@ path_HE60 = path.split(os.sep)
 del path_HE60[len(path_HE60)-1]
 path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 
-if cd.check_dir_HE60(path_HE60):
-    sys.exit()
+cd.check_dir_HE60(path_HE60)
 cd.check_dir(path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
 #%%
@@ -41,8 +40,8 @@ Tag = Inputs['Etiqueta'][0]
 Comment = Inputs['Comentario'][0]
 
 # Límites para las simulaciones:
-Id_min_run = int(Inputs['Id_min_run'][0])
-Id_max_run = int(Inputs['Id_max_run'][0])
+Id_min_run = Inputs['Id_min_run'][0]
+Id_max_run = Inputs['Id_max_run'][0]
 
 # Back up del Input:
 path_inputs = path + os.sep + 'Inputs'
@@ -131,6 +130,24 @@ if type(S_CDOM[0])==str:
 
 #%%
 
+combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
+
+Id_max = len(combination)
+
+if pd.isna(Id_min_run):
+    Id_min_run = 0
+
+if pd.isna(Id_max_run):
+    Id_max_run = Id_max
+
+Id_min_run = int(Id_min_run)
+Id_max_run = int(Id_max_run)
+
+# Corrección en caso de que Id_max_run>Id_max:
+Id_max_run = min(Id_max_run, Id_max)
+
+#%%
+
 # Printout de los valores para verificar la configuración:
     
 print(50*'-')
@@ -145,37 +162,43 @@ print('Id_max_run:\t%6d'%Id_max_run)
 
 print(50*'-')
 
-print('\nCHL (%d values):\n'%len(CHL), CHL)
-print('\nCDOM (%d values):\n'%len(CDOM), CDOM)
-print('\nNAP (%d values):\n'%len(NAP), NAP)
+print('\nCHL (%d values):\t'%len(CHL), CHL)
+print('\nCDOM (%d values):\t'%len(CDOM), CDOM)
+print('\nNAP (%d values):\t'%len(NAP), NAP)
 
 print(50*'-')
 
-print('\nAstar_NAP_443:\n', Astar_NAP_443)
-print('\nAstar_NAP_offset:\n', Astar_NAP_offset)
-print('\nBstar_NAP_555:\n', Bstar_NAP_555)
-print('\nS_NAP:\n', S_NAP)
-print('\nGAMMA_C_NAP:\n', GAMMA_C_NAP)
-print('\nS_CDOM:\n', S_CDOM)
+print('\Astar_NAP_443:\t', Astar_NAP_443)
+print('\nAstar_NAP_offset:\t', Astar_NAP_offset)
+print('\nBstar_NAP_555:\t', Bstar_NAP_555)
+print('\nS_NAP:\t', S_NAP)
+print('\nGAMMA_C_NAP:\t', GAMMA_C_NAP)
+print('\nS_CDOM:\t', S_CDOM)
 
 print(50*'-')
 
-print('\nSPF_FF_BB_B_NAP:\n', SPF_FF_BB_B_NAP)
-print('\n:SPF_FF_BB_B_CHL\n', SPF_FF_BB_B_CHL)
+print('\nSPF_FF_BB_B_NAP:\t', SPF_FF_BB_B_NAP)
+print('\nSPF_FF_BB_B_CHL:\t', SPF_FF_BB_B_CHL)
 
 print(50*'-')
 
-print('\nsuntheta:\n', suntheta)
-print('\nsunphi:\n', sunphi)
-print('\ntheta_view:\n', theta_view)
-print('\nphi_view:\n', phi_view)
-print('\ncloud:\n', cloud)
-print('\nwindspeed:\n', windspeed)
+print('\n(suntheta, sunphi):\t', suntheta, sunphi)
+print('\n(theta_view, phi_view):\t', theta_view, phi_view)
+print('\ncloud:\t', cloud)
+print('\nwindspeed:\t', windspeed)
 
 print(50*'-')
 
-input('Continue (ENTER)?')
+def continuar():
+    X = input('Continue (y/n)?')
+    if X == 'y':
+        print()
+    elif X == 'n':
+        sys.exit()
+    else:
+        continuar()
 
+continuar()
 #%%
 
 DF = pd.DataFrame()
@@ -200,25 +223,9 @@ DF['cloud'] = None
 DF['windspeed'] = None
 
 #%%
-
-# Verificación de directorios:
-# PATH = '/home/santiago/Documents'
-# paths = [PATH + '/HE60/data/DATA_SS', PATH + '/tesis/HL/batchruns',  PATH + '/tesis/HL/DATA']
-
-# for p in paths:
-#     tf.check_dir(p)
-
-# del paths, PATH
-
-#%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
 
-combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
 
-Id_max = len(combination)
-
-# Corrección en caso de que Id_max_run>Id_max:
-Id_max_run = min(Id_max_run, Id_max)
 
 if CREATE_BATCHRUN_FILES:
     for Id in range(Id_max):

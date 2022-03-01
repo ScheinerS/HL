@@ -27,7 +27,7 @@ def check_warnings(WARNINGS, Id, S):
 #%%
 def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view):
     #%%
-    print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))    
+    print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))
     cd.check_dir(path + os.sep + 'Outputs')
     
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
@@ -40,10 +40,14 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
         print('\n"%s" already exists.'%output_filename)
         input('Overwrite (ENTER)?')     
     
-    files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
-    Id_max = len(files)
+    # files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
+    # Id_max = len(files)
     
+    files = sorted(glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt'))
 
+    Id_min = 0
+    Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
+    
     # Sheet 0:
     
     date = datetime.today().strftime('%Y-%m-%d')
@@ -91,8 +95,9 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     print(Tag)
     
     WARNINGS = pd.DataFrame()
+    # MISSING = []
     
-    for Id in range(Id_max):
+    for Id in range(Id_min, Id_max):
         print('\r%4d/%4d'%(Id+1, Id_max), end='')
 
         # Creamos la columna 'Id':
@@ -111,141 +116,145 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
         # Proot:
         FILE = path_printouts + os.sep +'P%04d_%s.txt'%(Id, Tag)
         # print(FILE)
-        with open(FILE, "r") as file:
-            S = file.read() # String con todo el contenido del TXT.
-            
-            # Búsqueda de warnings:
-            check_warnings(WARNINGS, Id, S)
-            
-            # Comienzo de los bloques:
-            S = S.split('Output for wavelength band') # El TXT queda dividido en bloques S[i].
-            
-            ########
-
-            # Sheet 2:
-            
-            for i in range(1, len(S)):
-                # Longitud de onda del bloque i:
-                wavelength = float(S[i].split('nominal wavelength =  ')[1].split(' ')[0])
+        try:
+            with open(FILE, "r") as file:
+                S = file.read() # String con todo el contenido del TXT.
                 
-                # Tabla con reflectancias:
-                a = S[i].split('Phi = 45 represents the 135 degree viewing angle for minimizing sun glitter.]\n\n')[1].strip(' ') # desde
-                a = a.split('K-functions')[0].strip(' ') # hasta
-
-                lines = a.split('\n')
-                # Eliminación de los espacios al comienzo de cada línea:
-                for j in range(len(lines)):
-                    lines[j] = lines[j].strip()
+                # Búsqueda de warnings:
+                check_warnings(WARNINGS, Id, S)
                 
-                a = '\n'.join(lines)
-                a = re.sub('total up', 'total-up', a)
-                a = re.sub(' +', ' ', a)
-                a = re.sub(' +', ';', a)
+                # Comienzo de los bloques:
+                S = S.split('Output for wavelength band') # El TXT queda dividido en bloques S[i].
                 
-                a_df = pd.DataFrame([x.split(';') for x in a.split('\n')])
+                ########
+    
+                # Sheet 2:
                 
-                # Header:
-                new_header = a_df.iloc[0]
-                a_df = a_df[1:]
-                a_df.columns = new_header
-                
-                # Selección de ángulos de observación:
-                
-                a_df['Theta'] = a_df['Theta'].astype(float)
-                a_df['Phi-view'] = a_df['Phi-view'].astype(float)
-                
-                a_df = a_df[a_df['Theta']==theta_view]
-                a_df = a_df[a_df['Phi-view']==phi_view]
-
-                Rrs = float(a_df['Rrs']) #float(a[4])
-                rhow = np.pi*Rrs
-                
-                # Lo guardamos en el DataFrame:
-                ALL_rhow.loc[Id, wavelength] = rhow
-        
+                for i in range(1, len(S)):
+                    # Longitud de onda del bloque i:
+                    wavelength = float(S[i].split('nominal wavelength =  ')[1].split(' ')[0])
+                    
+                    # Tabla con reflectancias:
+                    a = S[i].split('Phi = 45 represents the 135 degree viewing angle for minimizing sun glitter.]\n\n')[1].strip(' ') # desde
+                    a = a.split('K-functions')[0].strip(' ') # hasta
+    
+                    lines = a.split('\n')
+                    # Eliminación de los espacios al comienzo de cada línea:
+                    for j in range(len(lines)):
+                        lines[j] = lines[j].strip()
+                    
+                    a = '\n'.join(lines)
+                    a = re.sub('total up', 'total-up', a)
+                    a = re.sub(' +', ' ', a)
+                    a = re.sub(' +', ';', a)
+                    
+                    a_df = pd.DataFrame([x.split(';') for x in a.split('\n')])
+                    
+                    # Header:
+                    new_header = a_df.iloc[0]
+                    a_df = a_df[1:]
+                    a_df.columns = new_header
+                    
+                    # Selección de ángulos de observación:
+                    
+                    a_df['Theta'] = a_df['Theta'].astype(float)
+                    a_df['Phi-view'] = a_df['Phi-view'].astype(float)
+                    
+                    a_df = a_df[a_df['Theta']==theta_view]
+                    a_df = a_df[a_df['Phi-view']==phi_view]
+    
+                    Rrs = float(a_df['Rrs']) #float(a[4])
+                    rhow = np.pi*Rrs
+                    
+                    # Lo guardamos en el DataFrame:
+                    ALL_rhow.loc[Id, wavelength] = rhow
+        except:
+            # MISSING.append(Id)
+            continue
         # Droot:
         FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + 'D%04d_%s.txt'%(Id, Tag)
-        # print(FILE)
-        with open(FILE, "r") as file:
-            S = file.read() # String con todo el contenido del TXT.
-            
-            # Comienzo de los bloques:
-            S = S.split('at nominal wavelength =') # El TXT queda dividido en bloques S[i].
-            for i in range(1, len(S)):
+        try:
+            with open(FILE, "r") as file:
+                S = file.read() # String con todo el contenido del TXT.
                 
-                # Wavelength:
-                
-                w = S[i].split('\n')[0].strip(' ')
-                wavelength = float(w)
-                
-                # Absorption (a):
-                
-                a_chl = S[i].split('acoef (for component  2)')[1]
-                a_chl = a_chl.split('acoef (for component  3)')[0].strip()
-                a_chl = float(a_chl)
-
-                a_cdom = S[i].split('acoef (for component  3)')[1]
-                a_cdom = a_cdom.split('acoef (for component  4)')[0].strip()
-                a_cdom = float(a_cdom)
-                
-                a_nap = S[i].split('acoef (for component  4)')[1]
-                a_nap = a_nap.split('bcoef')[0].strip()
-                a_nap = float(a_nap)
-
-                a_nw = a_chl + a_cdom + a_nap #a[7] # Total sin agua.
-                
-                # Lo guardamos en el DataFrame:
-                ALL_a_chl.loc[Id, wavelength] = a_chl
-                ALL_a_cdom.loc[Id, wavelength] = a_cdom
-                ALL_a_nap.loc[Id, wavelength] = a_nap
-                ALL_a_nw.loc[Id, wavelength] = a_nw
-
-                ########
-                
-                # Scattering (b):
-                
-                b_chl = S[i].split('bcoef (for component  2)')[1]
-                b_chl = b_chl.split('bcoef (for component  3)')[0].strip()
-                b_chl = float(b_chl)
-
-                b_cdom = S[i].split('bcoef (for component  3)')[1]
-                b_cdom = b_cdom.split('bcoef (for component  4)')[0].strip()
-                b_cdom = float(b_cdom)
-                
-                b_nap = S[i].split('bcoef (for component  4)')[1]
-                b_nap = b_nap.split('bbcoef')[0].strip()
-                b_nap = float(b_nap)
-                
-                b_p = b_chl + b_cdom + b_nap # Total sin agua.
-                
-                # Lo guardamos en el DataFrame:
-                ALL_b_chl.loc[Id, wavelength] = b_chl
-                ALL_b_nap.loc[Id, wavelength] = b_nap
-                ALL_b_p.loc[Id, wavelength] = b_p
-                
-                ########
-                
-                # Backscattering (bb):
+                # Comienzo de los bloques:
+                S = S.split('at nominal wavelength =') # El TXT queda dividido en bloques S[i].
+                for i in range(1, len(S)):
                     
-                bb_chl = S[i].split('bbcoef (for component  2)')[1]
-                bb_chl = bb_chl.split('bbcoef (for component  3)')[0].strip()
-                bb_chl = float(bb_chl)
-
-                bb_cdom = S[i].split('bbcoef (for component  3)')[1]
-                bb_cdom = bb_cdom.split('bbcoef (for component  4)')[0].strip()
-                bb_cdom = float(bb_cdom)
-                
-                bb_nap = S[i].split('bbcoef (for component  4)')[1]
-                bb_nap = bb_nap.split('atten')[0].strip()
-                bb_nap = float(bb_nap)
-                
-                bb_p = bb_chl + bb_cdom + bb_nap # Total sin agua
-       
-                # Lo guardamos en el DataFrame:
-                ALL_bb_chl.loc[Id, wavelength] = bb_chl
-                ALL_bb_nap.loc[Id, wavelength] = bb_nap
-                ALL_bb_p.loc[Id, wavelength] = bb_p
-
+                    # Wavelength:
+                    
+                    w = S[i].split('\n')[0].strip(' ')
+                    wavelength = float(w)
+                    
+                    # Absorption (a):
+                    
+                    a_chl = S[i].split('acoef (for component  2)')[1]
+                    a_chl = a_chl.split('acoef (for component  3)')[0].strip()
+                    a_chl = float(a_chl)
+    
+                    a_cdom = S[i].split('acoef (for component  3)')[1]
+                    a_cdom = a_cdom.split('acoef (for component  4)')[0].strip()
+                    a_cdom = float(a_cdom)
+                    
+                    a_nap = S[i].split('acoef (for component  4)')[1]
+                    a_nap = a_nap.split('bcoef')[0].strip()
+                    a_nap = float(a_nap)
+    
+                    a_nw = a_chl + a_cdom + a_nap #a[7] # Total sin agua.
+                    
+                    # Lo guardamos en el DataFrame:
+                    ALL_a_chl.loc[Id, wavelength] = a_chl
+                    ALL_a_cdom.loc[Id, wavelength] = a_cdom
+                    ALL_a_nap.loc[Id, wavelength] = a_nap
+                    ALL_a_nw.loc[Id, wavelength] = a_nw
+    
+                    ########
+                    
+                    # Scattering (b):
+                    
+                    b_chl = S[i].split('bcoef (for component  2)')[1]
+                    b_chl = b_chl.split('bcoef (for component  3)')[0].strip()
+                    b_chl = float(b_chl)
+    
+                    b_cdom = S[i].split('bcoef (for component  3)')[1]
+                    b_cdom = b_cdom.split('bcoef (for component  4)')[0].strip()
+                    b_cdom = float(b_cdom)
+                    
+                    b_nap = S[i].split('bcoef (for component  4)')[1]
+                    b_nap = b_nap.split('bbcoef')[0].strip()
+                    b_nap = float(b_nap)
+                    
+                    b_p = b_chl + b_cdom + b_nap # Total sin agua.
+                    
+                    # Lo guardamos en el DataFrame:
+                    ALL_b_chl.loc[Id, wavelength] = b_chl
+                    ALL_b_nap.loc[Id, wavelength] = b_nap
+                    ALL_b_p.loc[Id, wavelength] = b_p
+                    
+                    ########
+                    
+                    # Backscattering (bb):
+                        
+                    bb_chl = S[i].split('bbcoef (for component  2)')[1]
+                    bb_chl = bb_chl.split('bbcoef (for component  3)')[0].strip()
+                    bb_chl = float(bb_chl)
+    
+                    bb_cdom = S[i].split('bbcoef (for component  3)')[1]
+                    bb_cdom = bb_cdom.split('bbcoef (for component  4)')[0].strip()
+                    bb_cdom = float(bb_cdom)
+                    
+                    bb_nap = S[i].split('bbcoef (for component  4)')[1]
+                    bb_nap = bb_nap.split('atten')[0].strip()
+                    bb_nap = float(bb_nap)
+                    
+                    bb_p = bb_chl + bb_cdom + bb_nap # Total sin agua
+           
+                    # Lo guardamos en el DataFrame:
+                    ALL_bb_chl.loc[Id, wavelength] = bb_chl
+                    ALL_bb_nap.loc[Id, wavelength] = bb_nap
+                    ALL_bb_p.loc[Id, wavelength] = bb_p
+        except:
+            continue
     #######
     
     # Guardamos los DataFrames en el Excel:  
@@ -277,6 +286,8 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     if len(WARNINGS)>0:
         print(WARNINGS)
+        # print(MISSING)
+
 #%%
 if __name__=='__main__':
     
@@ -308,10 +319,10 @@ if __name__=='__main__':
     
     # Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
     
-    files = glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt')
-    
-    Id_min = 0
-    Id_max = len(files)
+    # files = sorted(glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt'))
+
+    # Id_min = 0
+    # Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
     
     # [theta_view, phi_view] = [40, 135] # tesis
     [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).

@@ -324,8 +324,8 @@ if __name__=='__main__':
     # Id_min = 0
     # Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
     
-    # [theta_view, phi_view] = [40, 135] # tesis
-    [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
+    [theta_view, phi_view] = [40, 135] # tesis
+    # [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
     
     create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)
     

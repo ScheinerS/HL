@@ -31,7 +31,7 @@ def Graficar(Tag, theta_view, phi_view, **save):
         i_max = len(DATA)
         
         # Colores:
-        cmap = plt.cm.viridis #coolwarm, viridis, plasma, inferno, magma, cividis
+        cmap = plt.cm.jet #coolwarm, viridis, plasma, inferno, magma, cividis
         rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, i_max+1)))
         
         plt.figure()
@@ -53,13 +53,18 @@ def Graficar(Tag, theta_view, phi_view, **save):
             cd.check_dir(path + os.sep + 'Graficos')
             save_path = path + os.sep + 'Graficos' + os.sep + 'RAW'
             cd.check_dir(save_path)
-            plt.savefig(save_path + os.sep + '%s_%s.png'%(Tag, sheet))
-
+            plt.savefig(save_path + os.sep + '%s_%s_vaz%dvphi%d.png'%(Tag, sheet, theta_view, phi_view))
+        plt.close('all')
 
 if __name__=='__main__':
     # Tag = 'AD_CCRR'
     # Tag = 'Tesis_v7'
     Tag = 'v8'
-    [theta_view, phi_view] = [0, 0]
+    
+    Angles = [[0, 0], [40, 135]]
+    #[theta_view, phi_view] = [0, 0]
     # [theta_view, phi_view] = [40, 135]
-    Graficar(Tag, theta_view, phi_view, save=False)
+    
+    for a in Angles:
+        [theta_view, phi_view] = [a[0], a[1]]
+        Graficar(Tag, theta_view, phi_view, save=False)

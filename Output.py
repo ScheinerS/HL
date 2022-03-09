@@ -7,9 +7,9 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-#from io import StringIO
 import re
 from datetime import datetime
+# import matplotlib.pyplot as plt
 
 import glob
 import check_dir as cd
@@ -43,7 +43,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     # files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
     # Id_max = len(files)
     
-    files = sorted(glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt'))
+    files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
 
     Id_min = 0
     Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
@@ -91,11 +91,16 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     #WAVELENGTHS = np.arange(350,952.5, 2.5)
 
-    I = pd.read_excel(path + os.sep + 'Inputs/Id_%s.xlsx'%Tag, engine = 'openpyxl')
+    I = pd.read_excel(path + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, engine = 'openpyxl')
     print(Tag)
     
     WARNINGS = pd.DataFrame()
-    # MISSING = []
+    RUN_TIMES = pd.DataFrame()
+    
+    RUN_TIMES['Id'] = None
+    RUN_TIMES['Run time'] = None
+    
+    MISSING = []
     
     for Id in range(Id_min, Id_max):
         print('\r%4d/%4d'%(Id+1, Id_max), end='')
@@ -114,14 +119,18 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
             INPUTS.loc[Id, var] = I[var].at[Id]
         
         # Proot:
-        FILE = path_printouts + os.sep +'P%04d_%s.txt'%(Id, Tag)
-        # print(FILE)
+        FILE = path_printouts + os.sep + Tag + os.sep +'P%04d_%s.txt'%(Id, Tag)
+        
         try:
             with open(FILE, "r") as file:
                 S = file.read() # String con todo el contenido del TXT.
                 
                 # Búsqueda de warnings:
                 check_warnings(WARNINGS, Id, S)
+                
+                run_time = float(S.split('Total (wall clock) run time =')[1].split('sec')[0].strip())
+                RUN_TIMES.loc[Id, 'Id'] = Id
+                RUN_TIMES.loc[Id, 'Run time'] = run_time/60
                 
                 # Comienzo de los bloques:
                 S = S.split('Output for wavelength band') # El TXT queda dividido en bloques S[i].
@@ -169,10 +178,10 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
                     # Lo guardamos en el DataFrame:
                     ALL_rhow.loc[Id, wavelength] = rhow
         except:
-            # MISSING.append(Id)
+            MISSING.append(Id)
             continue
         # Droot:
-        FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + 'D%04d_%s.txt'%(Id, Tag)
+        FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + Tag + os.sep + 'D%04d_%s.txt'%(Id, Tag)
         try:
             with open(FILE, "r") as file:
                 S = file.read() # String con todo el contenido del TXT.
@@ -257,7 +266,11 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
             continue
     #######
     
-    # Guardamos los DataFrames en el Excel:  
+    RUN_TIMES.to_csv(path + os.sep + 'Outputs' + os.sep + Output_file_name + '.csv')
+    
+
+    
+    # Guardamos los DataFrames en el Excel:
     
     print('\nOutput file:', output_filename)
     
@@ -284,9 +297,8 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     writer.save()
     print('\nDone.')
     
-    if len(WARNINGS)>0:
-        print(WARNINGS)
-        # print(MISSING)
+    print('WARNINGS:\n', WARNINGS)        
+    print('MISSING:\n', MISSING)
 
 #%%
 if __name__=='__main__':
@@ -297,10 +309,10 @@ if __name__=='__main__':
     '''
     
     # para generar la salida nuevamente con otros ángulos de observación:
-    # Tag = 'Tesis_v7'
+    Tag = 'Tesis_v7'
     # Tag = 'AD_CCRR'
     # Tag = 'PRUEBA'
-    Tag = 'v8'
+    # Tag = 'v8'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
@@ -324,8 +336,12 @@ if __name__=='__main__':
     # Id_min = 0
     # Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
     
-    [theta_view, phi_view] = [40, 135] # tesis
+    #[theta_view, phi_view] = [40, 135] # tesis
     # [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
+    # Angles = [[0, 0], [40, 135]]
+    Angles = [[40, 135]]
     
-    create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)
+    for a in Angles:
+        [theta_view, phi_view] = [a[0], a[1]]
+        create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)
     

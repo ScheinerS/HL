@@ -21,7 +21,7 @@ import Graficar_HL as ghl
 # Flags:
 CREATE_BATCHRUN_FILES = 0
 RUN = 1
-CREATE_OUTPUT = 0
+CREATE_OUTPUT = 1
 PLOT = 0
 
 #%%
@@ -283,7 +283,7 @@ if RUN:
     dest_dir = path_HE60 + os.sep + 'backend'
     os.chdir(dest_dir)
     for Id in range(Id_min_run, Id_max_run):
-        print('\r%4d'%(Id+1), end='')
+        # print('\r%4d'%(Id+1), end='')
         batchfile = './HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id)
         os.system(batchfile)
 

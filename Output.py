@@ -309,10 +309,8 @@ if __name__=='__main__':
     '''
     
     # para generar la salida nuevamente con otros ángulos de observación:
-    Tag = 'Tesis_v7'
-    # Tag = 'AD_CCRR'
-    # Tag = 'PRUEBA'
-    # Tag = 'v8'
+    # Tag = 'Tesis_v7'
+    Tag = 'v8'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
@@ -327,7 +325,7 @@ if __name__=='__main__':
     del path_HE60[len(path_HE60)-1]
     path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 
-    path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
+    path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
     
     # Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
     

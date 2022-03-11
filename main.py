@@ -21,7 +21,7 @@ import Graficar_HL as ghl
 # Flags:
 CREATE_BATCHRUN_FILES = 0
 RUN = 1
-CREATE_OUTPUT = 1
+CREATE_OUTPUT = 0
 PLOT = 0
 
 #%%
@@ -93,8 +93,8 @@ else:
     CDOM = geometric_progression(Inputs['CDOM443_min'][0], Inputs['CDOM443_max'][0], Inputs['CDOM443_factor'][0])
         
 #%%
-A_c_star_660 = [Inputs['A_c_star_660'][0]]
-E_c_star_660 = [Inputs['E_c_star_660'][0]]
+A_c_star_660 = [Inputs['A_c_phy_star_660'][0]]
+E_c_star_660 = [Inputs['E_c_phy_star_660'][0]]
 Astar_NAP_443 = [Inputs['Astar_NAP_443'][0]]
 Astar_NAP_offset = [float(i) for i in str(Inputs['Astar_NAP_offset'][0]).split(',')]
 Bstar_NAP_555 = [Inputs['Bstar_NAP_555'][0]]
@@ -113,6 +113,8 @@ phi_view = [Inputs['phi_view'][0]]
 cloud = [Inputs['cloud'][0]]
 windspeed = [Inputs['windspeed'][0]]
 
+fluorescence = [Inputs['fluorescence'][0]]
+
 # Conversión a float:
 def values_to_float(LIST):
     LIST = LIST[0].split(',')
@@ -130,7 +132,7 @@ if type(S_CDOM[0])==str:
 
 #%%
 
-combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed))
+combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed, fluorescence))
 
 Id_max = len(combination)
 
@@ -149,7 +151,13 @@ Id_max_run = min(Id_max_run, Id_max)
 #%%
 
 # Printout de los valores para verificar la configuración:
-    
+print(50*'-')
+
+print('CREATE_BATCHRUN_FILES:\t', CREATE_BATCHRUN_FILES)
+print('RUN:\t', RUN)
+print('CREATE_OUTPUT:\t', CREATE_OUTPUT)
+print('PLOT:\t', PLOT)
+
 print(50*'-')
 
 print('Tag:\t', Tag)
@@ -189,6 +197,10 @@ print('\nwindspeed:\t', windspeed)
 
 print(50*'-')
 
+print('\nfluorescence:\t', fluorescence)
+
+print(50*'-')
+
 def continuar():
     X = input('Continue (y/n)?')
     if X == 'y':
@@ -207,8 +219,8 @@ DF['Id'] = None
 DF['CHL'] = None
 DF['NAP'] = None
 DF['CDOM'] = None
-DF['A_c_star_660'] = None
-DF['E_c_star_660'] = None
+DF['A_c_phy_star_660'] = None
+DF['E_c_phy_star_660'] = None
 DF['a*_NAP(443)'] = None
 DF['Astar_NAP_offset'] = None
 DF['Bstar_NAP_555'] = None
@@ -221,11 +233,10 @@ DF['suntheta'] = None
 DF['sunphi'] = None
 DF['cloud'] = None
 DF['windspeed'] = None
+DF['fluorescence'] = None
 
 #%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
-
-
 
 if CREATE_BATCHRUN_FILES:
     for Id in range(Id_max):
@@ -253,11 +264,12 @@ if CREATE_BATCHRUN_FILES:
         suntheta = line[14]
         sunphi = line[15]
         cloud = line[16]
-        windspeed = line[17]       
+        windspeed = line[17]
+        fluorescence = line[18]
         
         ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
         
-        hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
+        hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
     
     # Archivo de Id:
     cd.check_dir(path + os.sep + 'Inputs')
@@ -272,9 +284,9 @@ cd.check_dir(path_batchruns)
 tf.transfer(path_batchruns, path_HE60 + os.sep + 'run/batch')
 
 # Datos de a y b:
-path_ab = path + os.sep +'/DATA'
-cd.check_dir(path_ab)
-tf.transfer(path + '/DATA', path_HE60 + os.sep + 'data/DATA_SS')
+#path_ab = path + os.sep +'/DATA'
+#cd.check_dir(path_ab)
+tf.transfer(path + os.sep + 'DATA', path_HE60 + os.sep + 'data/DATA_SS')
 
 
 #%%
@@ -289,10 +301,13 @@ if RUN:
 
 #%%
 
-# Regresamos al directorio original de trabajo:
-# os.chdir(path) # Esto creo que ya no es necesario. REVISAR.
+path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
+path_digital = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital'
 
-path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout' 
+tf.transfer_PD_files(Tag, path_HE60)
+
+
+#%%
 
 Output_filename = 'Output_' + Tag
 

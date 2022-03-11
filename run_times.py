@@ -10,7 +10,7 @@ plt.close('all')
 
 #%%
 
-TAGS = ['Tesis_v7', 'v8']
+TAGS = ['Tesis_v7', 'v8', 'v8-prueba_NAP'] # 'v8_no_fl'
 
 path = os.path.dirname(os.path.realpath('__file__'))
 sys.path.append(path)
@@ -42,7 +42,6 @@ for Tag in TAGS:
         if not i in RUN_TIMES[Tag].index:
             ID[Tag].drop(i, inplace=True)
 #%%
-    # Remuevo los que no estén:
     
 # def hist(Tag):
 #     plt.figure()
@@ -52,9 +51,9 @@ for Tag in TAGS:
 #     plt.title(Tag)
 #     plt.savefig(save_path + os.sep + 'Output_' + Tag + '_hist.png')
 
-variables = ['CHL', 'NAP', 'CDOM']
-colormaps = {'CHL': 'winter', 'CDOM': 'Wistia', 'NAP': 'OrRd'}
-units = {'CHL': 'mg/m^{3}', 'CDOM': 'm^{-1}', 'NAP': 'g/m^{3}'}
+variables = ['CHL', 'NAP', 'CDOM', 'SPF_FF_BB_B_NAP']
+colormaps = {'CHL': 'winter', 'CDOM': 'Wistia', 'NAP': 'OrRd', 'SPF_FF_BB_B_NAP': 'cividis'}
+units = {'CHL': 'mg/m^{3}', 'CDOM': 'm^{-1}', 'NAP': 'g/m^{3}', 'SPF_FF_BB_B_NAP': 's.u.'}
 
 FS = 15
 
@@ -63,10 +62,26 @@ for Tag in TAGS:
         plt.figure()
         # plt.plot(, '.')
         plt.scatter(RUN_TIMES[Tag].index, RUN_TIMES[Tag]['Run time'], c=ID[Tag][var], cmap=colormaps[var])
-        plt.xlabel(r'Id')
-        plt.ylabel(r't [m]')
-        plt.title(r'\verb|%s|'%Tag)
+        plt.xlabel(r'Id', fontsize=FS)
+        plt.ylabel(r't [m]', fontsize=FS)
+        plt.title(r'\verb|%s|'%Tag, fontsize=FS+5)
+        plt.grid()
         cbar = plt.colorbar()
-        cbar.set_label(var + r'$\;[%s]$'%units[var], fontsize=FS)
+        cbar.set_label(r'\verb|%s| $\;[%s]$'%(var, units[var]), fontsize=FS)
         plt.show()
         plt.savefig(save_path + os.sep + 'runtimes_' + Tag + '_' + var + '.png')
+
+#%%
+
+# Comparación: v8 & v8-prueba_NAP
+
+plt.figure()
+for Tag in ['v8', 'v8-prueba_NAP']:
+    plt.scatter(RUN_TIMES[Tag].index, RUN_TIMES[Tag]['Run time'], label=r'\verb|%s|'%Tag)
+plt.xlabel(r'Id', fontsize=FS)
+plt.ylabel(r't [m]', fontsize=FS)
+plt.title(r'\verb|v8 & v8-prueba_NAP|', fontsize=FS+5)
+plt.legend(fontsize=FS)
+plt.grid()
+plt.show()
+plt.savefig(save_path + os.sep + 'runtimes_v8_&_v8-prueba_NAP_.png')

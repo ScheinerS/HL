@@ -7,7 +7,7 @@ PDF: p. 110.
 '''
 
 #%%
-def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed):
+def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence):
 
     # Crea el archivo en el formato de HL.
     
@@ -159,8 +159,7 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     ########################################
     
     #RECORD 7: Inelastic scattering parameters
-    fluorescence = 1 # sin: 0, con: 1.
-    Record[7] = '0, %d, 0, 0, 2'%fluorescence
+    Record[7] = '0, %g, 0, 0, 2'%fluorescence
     
     ########################################
     

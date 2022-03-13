@@ -7,7 +7,7 @@ PDF: p. 110.
 '''
 
 #%%
-def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence):
+def create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence):
 
     # Crea el archivo en el formato de HL.
     
@@ -27,7 +27,7 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     ########################################
     #RECORD 3: Rootname
     
-    Record[3] = '%04d_%s'%(Id, Tag)
+    Record[3] = '%06d_%s'%(Id, Tag)
     
     ########################################
     #RECORD 4a: output options
@@ -65,10 +65,10 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     del Record_5c_H20, Record_5c_CHL, Record_5c_CDOM, Record_5c_NAP
 
     #RECORD 5d: Absorption data files
-    Record_5d_H20 = '/home/santiago/Documents/HE60/data/H2OabCCRR.txt'
-    Record_5d_CHL = '/home/santiago/Documents/HE60/data/DATA_SS/%04d_astar_CHL.txt'%(Id)
+    Record_5d_H20 = path_HE60 + '/data/H2OabCCRR.txt'
+    Record_5d_CHL = path_HE60 + '/data/DATA_SS/%06d_astar_CHL.txt'%(Id)
     Record_5d_CDOM = 'dummyastar.txt'
-    Record_5d_NAP = '/home/santiago/Documents/HE60/data/DATA_SS/%04d_astar_NAP.txt'%(Id)
+    Record_5d_NAP = path_HE60 + '/data/DATA_SS/%06d_astar_NAP.txt'%(Id)
        
     R5['d'] = Record_5d_H20 + '\n' + Record_5d_CHL + '\n' + Record_5d_CDOM + '\n' + Record_5d_NAP
     
@@ -86,9 +86,9 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     
     #RECORD 5f: Scattering data files
     Record_5f_H20 = 'bstarDummy.txt'
-    Record_5f_CHL = '/home/santiago/Documents/HE60/data/DATA_SS/%04d_bstar_CHL.txt'%(Id)
+    Record_5f_CHL = path_HE60 + '/data/DATA_SS/%06d_bstar_CHL.txt'%(Id)
     Record_5f_CDOM = 'dummybstar.txt'
-    Record_5f_NAP = '/home/santiago/Documents/HE60/data/DATA_SS/%04d_bstar_NAP.txt'%(Id)
+    Record_5f_NAP = path_HE60 + '/data/DATA_SS/%06d_bstar_NAP.txt'%(Id)
     
     R5['f'] = Record_5f_H20 + '\n' + Record_5f_CHL + '\n' + Record_5f_CDOM + '\n' + Record_5f_NAP
     
@@ -192,7 +192,7 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     R12 = {} # Record 12.
     
     #RECORD 12a: Data file for water IOPs
-    R12['1'] = '/home/santiago/Documents/HE60/data/H2OabCCRR.txt'
+    R12['1'] = path_HE60 + '/data/H2OabCCRR.txt'
     
     #RECORD 12b: Numbre of ac-x files
     R12['2'] = '1'
@@ -239,15 +239,24 @@ def create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_n
     
     ########################################
     
-    with open("batchruns/I%s_%04d.txt"%(Tag, Id), "w") as output:
+    with open("batchruns/I%s_%06d.txt"%(Tag, Id), "w") as output:
         output.write(S)
 
 #%%
 
 if __name__ == "__main__":
+    
+    import sys
+    import os
+    
+    path = os.path.dirname(os.path.realpath('__file__'))
+    sys.path.append(path)
 
     # Valores de prueba:
-    
+    path_HE60 = path.split(os.sep)
+    del path_HE60[len(path_HE60)-1]
+    path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
+
     Id = 12345
     Tag = 'TAG'
     Comment = 'COMMENT'
@@ -265,5 +274,7 @@ if __name__ == "__main__":
     cloud = 0
     windspeed = 5
     
-    create_batchrun_file(Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed)
+    fluorescence = 0
+    
+    create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
     

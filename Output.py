@@ -25,13 +25,18 @@ def check_warnings(WARNINGS, Id, S):
         WARNINGS.loc[Id, 'Warnings'] = S
     
 #%%
-def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view):
+def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
     #%%
     print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))
     cd.check_dir(path + os.sep + 'Outputs')
     
+    files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
+
+    Id_min = max(0, Id_min)
+    Id_max = min(int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1, Id_max)
+    
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
-    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
+    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min, Id_max)
     
     # Chequeo de sobreescritura:
     # output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
@@ -42,12 +47,6 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     
     # files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
     # Id_max = len(files)
-    
-    files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
-
-    Id_min = 0
-    Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
-    
     # Sheet 0:
     
     date = datetime.today().strftime('%Y-%m-%d')
@@ -103,23 +102,23 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
     MISSING = []
     
     for Id in range(Id_min, Id_max):
-        print('\r%4d/%4d'%(Id+1, Id_max), end='')
+        print('\r%6d/%6d'%(Id, Id_max-1), end='')
 
         # Creamos la columna 'Id':
         for df in DF:
-            df.loc[Id, 'Id'] = str('%04d'%Id)
+            df.loc[Id, 'Id'] = str('%06d'%Id)
         
         ########
         
         # Sheet 1:
         
-        INPUTS.loc[Id, 'Id'] = str('%04d'%Id)
+        INPUTS.loc[Id, 'Id'] = str('%06d'%Id)
         
         for var in I.columns:
-            INPUTS.loc[Id, var] = I[var].at[Id]
+            INPUTS.loc[Id, var] = I[var].at[Id-Id_min]
         
         # Proot:
-        FILE = path_printouts + os.sep + Tag + os.sep +'P%04d_%s.txt'%(Id, Tag)
+        FILE = path_printouts + os.sep + Tag + os.sep +'P%06d_%s.txt'%(Id, Tag)
         
         try:
             with open(FILE, "r") as file:
@@ -181,7 +180,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
             MISSING.append(Id)
             continue
         # Droot:
-        FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + Tag + os.sep + 'D%04d_%s.txt'%(Id, Tag)
+        FILE = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital' + os.sep + Tag + os.sep + 'D%06d_%s.txt'%(Id, Tag)
         try:
             with open(FILE, "r") as file:
                 S = file.read() # String con todo el contenido del TXT.
@@ -265,8 +264,9 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi
         except:
             continue
     #######
-    
-    RUN_TIMES.to_csv(path + os.sep + 'Outputs' + os.sep + Output_file_name + '.csv')
+    path_runtimes = path + os.sep + 'Outputs' + os.sep + 'run_times'
+    cd.check_dir(path_runtimes)
+    RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%d-%d.csv'%(Id_min, Id_max))
     
 
     
@@ -310,7 +310,8 @@ if __name__=='__main__':
     
     # para generar la salida nuevamente con otros ángulos de observación:
     # Tag = 'Tesis_v7'
-    Tag = 'v8'
+    # Tag = 'v8'
+    Tag = 'TEST_2'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
@@ -326,20 +327,15 @@ if __name__=='__main__':
     path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 
     path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
-    
-    # Output_filename = 'Output_' + Tag # Nombre para el archivo de salida.
-    
-    # files = sorted(glob.glob(path_printouts + os.sep + 'P*' + Tag + '.txt'))
-
-    # Id_min = 0
-    # Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P'))
-    
+       
     #[theta_view, phi_view] = [40, 135] # tesis
     # [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
+    [Id_min, Id_max] = [1000, 5000]
+    
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        create_output(path_HE60, path, path_printouts, Tag, Comment, theta_view, phi_view)
+        create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
     

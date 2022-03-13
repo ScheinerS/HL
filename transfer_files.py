@@ -22,12 +22,8 @@ import check_dir as cd
 def transfer(orig_dir, dest_dir):
     print('\nMoving files...')
     
-    #current_dir = os.getcwd()
-    
     os.chdir(orig_dir)
     files = os.listdir()
-    
-    #dest_dir = '/home/santiago/Documents/HE60/run/batch'
     
     for file in files:
         try:
@@ -63,28 +59,3 @@ def transfer_PD_files(Tag, path_HE60):
         os.remove(file)
     
     return
-
-
-# def transfer_data_files():
-#     print('\nMoving data files...')
-    
-#     current_dir = os.getcwd()
-#     orig_dir = current_dir + '/DATA/'
-    
-#     os.chdir(orig_dir)
-#     files = os.listdir()
-    
-#     dest_dir = '/home/santiago/Documents/HE60/data/DATA_SS'
-    
-#     for file in files:
-#         try:
-#             os.remove(dest_dir + os.sep + file)
-#         except:
-#             pass
-    
-#     for file in files:
-#         shutil.move(file, dest_dir)
-    
-#     print('Done.\n')
-    
-#     return

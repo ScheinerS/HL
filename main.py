@@ -19,10 +19,10 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 0
+CREATE_BATCHRUN_FILES = 1
 RUN = 1
-CREATE_OUTPUT = 0
-PLOT = 0
+CREATE_OUTPUT = 1
+PLOT = 1
 
 #%%
 # Verificación del directorio HE60:
@@ -38,6 +38,9 @@ Inputs = pd.read_excel('Input.xlsx', engine = 'openpyxl')
 
 Tag = Inputs['Etiqueta'][0]
 Comment = Inputs['Comentario'][0]
+
+# Id inicial:
+Id_start = Inputs['Id_start'][0]
 
 # Límites para las simulaciones:
 Id_min_run = Inputs['Id_min_run'][0]
@@ -134,7 +137,12 @@ if type(S_CDOM[0])==str:
 
 combination = list(itertools.product(CHL, NAP, CDOM, A_c_star_660, E_c_star_660, Astar_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, GAMMA_C_NAP, S_CDOM, SPF_FF_BB_B_NAP, SPF_FF_BB_B_CHL, suntheta, sunphi, cloud, windspeed, fluorescence))
 
-Id_max = len(combination)
+Id_start = int(Id_start)
+
+Id_max = Id_start + len(combination)
+
+if pd.isna(Id_start):
+    Id_start = 0
 
 if pd.isna(Id_min_run):
     Id_min_run = 0
@@ -239,12 +247,12 @@ DF['fluorescence'] = None
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
 
 if CREATE_BATCHRUN_FILES:
-    for Id in range(Id_max):
+    for Id in range(Id_start, Id_max):
 
         print('\r%4d'%(Id+1), end='')
         
-        line = [str('%04d'%Id)]
-        line.extend(list(combination[Id]))
+        line = [str('%06d'%Id)]
+        line.extend(list(combination[Id-Id_start]))
         
         DF.at[Id] = line
         
@@ -267,9 +275,9 @@ if CREATE_BATCHRUN_FILES:
         windspeed = line[17]
         fluorescence = line[18]
         
-        ab.create_data_files(str('%04d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
+        ab.create_data_files(str('%06d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
         
-        hlb.create_batchrun_file(Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
+        hlb.create_batchrun_file(path_HE60, Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
     
     # Archivo de Id:
     cd.check_dir(path + os.sep + 'Inputs')
@@ -296,7 +304,7 @@ if RUN:
     os.chdir(dest_dir)
     for Id in range(Id_min_run, Id_max_run):
         # print('\r%4d'%(Id+1), end='')
-        batchfile = './HydroLight6 < ../run/batch/I%s_%04d.txt'%(Tag, Id)
+        batchfile = './HydroLight6 < ../run/batch/I%s_%06d.txt'%(Tag, Id)
         os.system(batchfile)
 
 #%%
@@ -314,6 +322,7 @@ Output_filename = 'Output_' + Tag
 for t_v in theta_view:
     for p_v in phi_view:
         if CREATE_OUTPUT:
-            op.create_output(path_HE60, path, path_printouts, Tag, Comment, t_v, p_v)
+            # op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
+            op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_start, Id_max, t_v, p_v)
         if PLOT:
-            ghl.Graficar(Tag, t_v, p_v, save=False)
+            ghl.Graficar(path, Tag, t_v, p_v, save=False)

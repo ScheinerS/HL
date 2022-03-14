@@ -30,7 +30,7 @@ RUN_TIMES['NAP'] = None
 
 #%%
 for Tag in TAGS:
-    RUN_TIMES[Tag] = pd.read_csv(path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.csv', index_col=('Id'))
+    RUN_TIMES[Tag] = pd.read_csv(path + os.sep + 'Outputs' + os.sep + 'run_times' + os.sep + 'Output_' + Tag + '.csv', index_col=('Id'))
     # RUN_TIMES[Tag].index = RUN_TIMES[Tag]['Id']
     ID[Tag] = pd.read_excel(path + os.sep + 'Inputs' + os.sep + 'Id_' + Tag + '.xlsx', engine = 'openpyxl', index_col=('Id'))
     # ID[Tag].index = ID[Tag]['Id']

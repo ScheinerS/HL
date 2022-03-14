@@ -19,10 +19,10 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 1
+CREATE_BATCHRUN_FILES = 0
 RUN = 1
-CREATE_OUTPUT = 1
-PLOT = 1
+CREATE_OUTPUT = 0
+PLOT = 0
 
 #%%
 # Verificación del directorio HE60:
@@ -257,8 +257,8 @@ if CREATE_BATCHRUN_FILES:
         DF.at[Id] = line
         
         chl = line[1]
-        cdom = line[2]
-        nap = line[3]
+        nap = line[2]
+        cdom = line[3]
         a_c_star_660 = line[4]
         e_c_star_660 = line[5]
         astar_nap_443 = line[6]

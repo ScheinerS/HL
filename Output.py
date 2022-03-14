@@ -308,10 +308,8 @@ if __name__=='__main__':
     SALIDA SIN CORRER LAS SIMULACIONES NUEVAMENTE.
     '''
     
-    # para generar la salida nuevamente con otros ángulos de observación:
-    # Tag = 'Tesis_v7'
-    # Tag = 'v8'
-    Tag = 'TEST_2'
+    # TAGS = ['Tesis_v7', 'v8', 'v8_no_fl']
+    Tag = 'v8_no_fl'
     
     path = os.path.dirname(os.path.realpath('__file__'))
     sys.path.append(path)
@@ -327,13 +325,11 @@ if __name__=='__main__':
     path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 
     path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
-       
-    #[theta_view, phi_view] = [40, 135] # tesis
-    # [theta_view, phi_view] = [0, 0] # Nechad et al. (2010).
+    
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [1000, 5000]
+    [Id_min, Id_max] = [0000, 4000]
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]

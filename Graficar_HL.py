@@ -16,8 +16,8 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 plt.close('all')
 
-def Graficar(Tag, theta_view, phi_view, **save):
-    filename = 'Outputs' + os.sep + 'Output_' + Tag + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
+def Graficar(path, Tag, theta_view, phi_view, **save):
+    filename = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '_vaz%dvphi%d'%(theta_view, phi_view) + '.xlsx'
     xl = pd.ExcelFile(filename)
     xl.sheet_names # see all sheet names
     sheets = xl.sheet_names[2:]
@@ -57,14 +57,18 @@ def Graficar(Tag, theta_view, phi_view, **save):
         plt.close('all')
 
 if __name__=='__main__':
+        
+    path = os.path.dirname(os.path.realpath('__file__'))
+    sys.path.append(path)
+    
     # Tag = 'AD_CCRR'
     # Tag = 'Tesis_v7'
-    Tag = 'v8'
+    Tag = 'TEST'
     
-    Angles = [[0, 0], [40, 135]]
-    #[theta_view, phi_view] = [0, 0]
-    # [theta_view, phi_view] = [40, 135]
+    # Angles = [[0, 0], [40, 135]]
+    # Angles = [[0, 0]]
+    Angles = [[40, 135]]
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        Graficar(Tag, theta_view, phi_view, save=False)
+        Graficar(path, Tag, theta_view, phi_view, save=False)

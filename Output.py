@@ -114,8 +114,8 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
         
         INPUTS.loc[Id, 'Id'] = str('%06d'%Id)
         
-        for var in I.columns:
-            INPUTS.loc[Id, var] = I[var].at[Id-Id_min]
+        for var in I.columns[1:]:
+            INPUTS.loc[Id, var] = I[var].at[Id]
         
         # Proot:
         FILE = path_printouts + os.sep + Tag + os.sep +'P%06d_%s.txt'%(Id, Tag)
@@ -329,7 +329,7 @@ if __name__=='__main__':
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [0000, 4000]
+    [Id_min, Id_max] = [4000, 8000]
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]

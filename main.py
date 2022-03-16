@@ -249,7 +249,7 @@ DF['fluorescence'] = None
 if CREATE_BATCHRUN_FILES:
     for Id in range(Id_start, Id_max):
 
-        print('\r%4d'%(Id+1), end='')
+        print('\r%6d/%6d'%(Id, Id_max), end='')
         
         line = [str('%06d'%Id)]
         line.extend(list(combination[Id-Id_start]))

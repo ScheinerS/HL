@@ -64,7 +64,7 @@ for Tag in TAGS:
         plt.scatter(RUN_TIMES[Tag].index, RUN_TIMES[Tag]['Run time'], c=ID[Tag][var], cmap=colormaps[var])
         plt.xlabel(r'Id', fontsize=FS)
         plt.ylabel(r't [m]', fontsize=FS)
-        plt.title(r'\verb|%s|'%Tag, fontsize=FS+5)
+        plt.title(r'\verb|%s| (total: %.2f hs)'%(Tag, sum(RUN_TIMES[Tag]['Run time'])/60), fontsize=FS+5)
         plt.grid()
         cbar = plt.colorbar()
         cbar.set_label(r'\verb|%s| $\;[%s]$'%(var, units[var]), fontsize=FS)

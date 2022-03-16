@@ -15,6 +15,49 @@ import glob
 import check_dir as cd
 
 #%%
+def continuar():
+    X = input('Continue (y/n)?')
+    if X == 'y':
+        print()
+    elif X == 'n':
+        sys.exit()
+    else:
+        continuar()
+#%%
+def check_output_files(Tag, path_HE60, Id_min, Id_max):
+    # verifica que estén todos los archivos entre Id_min e Id_max.
+    missing_digital = []
+    missing_printout = []
+    
+    path_digital = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital'
+    path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
+    
+    # digital:
+    d_files = sorted(glob.glob(path_digital + os.sep + Tag + os.sep + 'D*' + Tag + '.txt'))
+    Id_min = max(0, Id_min)
+    Id_max = min(int(d_files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('D')) + 1, Id_max)
+    
+    for Id in [Id_min, Id_max]:
+        file = path_digital + os.sep + Tag + os.sep +'D%06d_%s.txt'%(Id, Tag)
+        if not file in d_files:
+            missing_digital.append(Id)
+    
+    # printout:
+    p_files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
+    Id_min = max(0, Id_min)
+    Id_max = min(int(p_files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1, Id_max)
+    
+    for Id in [Id_min, Id_max]:
+        file = path_printouts + os.sep + Tag + os.sep +'P%06d_%s.txt'%(Id, Tag)
+        if not file in p_files:
+            missing_printout.append(Id)
+    
+    print('missing_digital:\t', missing_digital)
+    print('missing_printout:\t', missing_printout)
+    
+    if len(missing_digital)>0 or len(missing_printout)>0:
+        continuar()
+#%%
 def check_warnings(WARNINGS, Id, S):
     
     S = S.split('***** BEGIN WARNING MESSAGES FOR INPUT DATA FILES *****')[1]
@@ -261,12 +304,13 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
                     ALL_bb_chl.loc[Id, wavelength] = bb_chl
                     ALL_bb_nap.loc[Id, wavelength] = bb_nap
                     ALL_bb_p.loc[Id, wavelength] = bb_p
-        except:
+        except:            
+            MISSING.append(Id)
             continue
     #######
     path_runtimes = path + os.sep + 'Outputs' + os.sep + 'run_times'
     cd.check_dir(path_runtimes)
-    RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%d-%d.csv'%(Id_min, Id_max))
+    RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%06d-%06d.csv'%(Id_min, Id_max))
     
 
     
@@ -297,8 +341,11 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
     writer.save()
     print('\nDone.')
     
-    print('WARNINGS:\n', WARNINGS)        
-    print('MISSING:\n', MISSING)
+    # Remoción de duplicados:
+    MISSING = list(dict.fromkeys(MISSING))
+    
+    print('\nWARNINGS:\n', WARNINGS)
+    print('\nMISSING OR CORRUPTED:\n', MISSING)
 
 #%%
 if __name__=='__main__':
@@ -308,30 +355,37 @@ if __name__=='__main__':
     SALIDA SIN CORRER LAS SIMULACIONES NUEVAMENTE.
     '''
     
-    # TAGS = ['Tesis_v7', 'v8', 'v8_no_fl']
-    Tag = 'v8_no_fl'
+    # TAGS = ['Tesis_v7', 'v8', 'v8_no_fl', 'v9_no_fl']
+    Tag = 'v9_no_fl'
     
-    path = os.path.dirname(os.path.realpath('__file__'))
+    path = os.sep.join(os.path.dirname(os.path.realpath('__file__')).split(os.sep)[:-1])
     sys.path.append(path)
     
-    path_inputs = path + os.sep + 'Inputs'
+    path_HL = path + os.sep + 'HL'
+    path_HE60 = path + os.sep + 'HE60'
+    
+    path_inputs = path_HL + os.sep + 'Inputs'
     
     Inputs = pd.read_excel(path_inputs + os.sep + 'Input_%s.xlsx'%Tag, engine = 'openpyxl')
     
     Comment = Inputs['Comentario'][0]
     
-    path_HE60 = path.split(os.sep)
-    del path_HE60[len(path_HE60)-1]
-    path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
-
+    # path_HE60 = path.split(os.sep)
+    # del path_HE60[len(path_HE60)-1]
+    # path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
+    
+    path_digital = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital'
     path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
     
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [4000, 8000]
+    [Id_min, Id_max] = [0000, 6000]
+    
+    # Chequeo de Droot y Proot:
+    check_output_files(Tag, path_HE60, Id_min, Id_max)
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
+        create_output(path_HE60, path_HL, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
     

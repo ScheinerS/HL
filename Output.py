@@ -35,7 +35,7 @@ def check_output_files(Tag, path_HE60, Id_min, Id_max):
     # digital:
     d_files = sorted(glob.glob(path_digital + os.sep + Tag + os.sep + 'D*' + Tag + '.txt'))
     Id_min = max(0, Id_min)
-    Id_max = min(int(d_files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('D')) + 1, Id_max)
+    Id_max = min(int(d_files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('D')), Id_max)
     
     for Id in [Id_min, Id_max]:
         file = path_digital + os.sep + Tag + os.sep +'D%06d_%s.txt'%(Id, Tag)
@@ -68,10 +68,17 @@ def check_warnings(WARNINGS, Id, S):
         WARNINGS.loc[Id, 'Warnings'] = S
     
 #%%
-def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
+def create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
     #%%
+    path_HL = path + os.sep + 'HL'
+    path_HE60 = path + os.sep + 'HE60'
+    
+    # path_digital = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'digital'
+    path_printouts = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 'printout'
+ 
+    
     print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))
-    cd.check_dir(path + os.sep + 'Outputs')
+    cd.check_dir(path_HL + os.sep + 'Outputs')
     
     files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
 
@@ -79,7 +86,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
     Id_max = min(int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1, Id_max)
     
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
-    output_filename = path + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min, Id_max)
+    output_filename = path_HL + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min, Id_max)
     
     # Chequeo de sobreescritura:
     # output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
@@ -133,7 +140,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
     
     #WAVELENGTHS = np.arange(350,952.5, 2.5)
 
-    I = pd.read_excel(path + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, engine = 'openpyxl')
+    I = pd.read_excel(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, engine = 'openpyxl')
     print(Tag)
     
     WARNINGS = pd.DataFrame()
@@ -308,7 +315,7 @@ def create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max,
             MISSING.append(Id)
             continue
     #######
-    path_runtimes = path + os.sep + 'Outputs' + os.sep + 'run_times'
+    path_runtimes = path_HL + os.sep + 'Outputs' + os.sep + 'run_times'
     cd.check_dir(path_runtimes)
     RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%06d-%06d.csv'%(Id_min, Id_max))
     
@@ -380,12 +387,12 @@ if __name__=='__main__':
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [0000, 6000]
+    [Id_min, Id_max] = [0, 25]
     
     # Chequeo de Droot y Proot:
     check_output_files(Tag, path_HE60, Id_min, Id_max)
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        create_output(path_HE60, path_HL, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
+        create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
     

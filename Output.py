@@ -363,7 +363,7 @@ if __name__=='__main__':
     '''
     
     # TAGS = ['Tesis_v7', 'v8', 'v8_no_fl', 'v9_no_fl']
-    Tag = 'v9_no_fl'
+    Tag = 'v8'
     
     path = os.sep.join(os.path.dirname(os.path.realpath('__file__')).split(os.sep)[:-1])
     sys.path.append(path)
@@ -387,7 +387,7 @@ if __name__=='__main__':
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [0, 25]
+    [Id_min, Id_max] = [0, 2000]
     
     # Chequeo de Droot y Proot:
     check_output_files(Tag, path_HE60, Id_min, Id_max)

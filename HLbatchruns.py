@@ -65,7 +65,7 @@ def create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, sp
     del Record_5c_H20, Record_5c_CHL, Record_5c_CDOM, Record_5c_NAP
 
     #RECORD 5d: Absorption data files
-    Record_5d_H20 = path_HE60 + '/data/H2Oa0b.txt' # '/data/H2OabCCRR.txt'
+    Record_5d_H20 = path_HE60 + '/data/H2OabCCRR.txt' # '/data/H2Oa0b.txt' # '/data/H2OabCCRR.txt'
     Record_5d_CHL = path_HE60 + '/data/DATA_SS/%06d_astar_CHL.txt'%(Id)
     Record_5d_CDOM = 'dummyastar.txt'
     Record_5d_NAP = path_HE60 + '/data/DATA_SS/%06d_astar_NAP.txt'%(Id)
@@ -192,7 +192,7 @@ def create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, sp
     R12 = {} # Record 12.
     
     #RECORD 12a: Data file for water IOPs
-    R12['1'] = path_HE60 + '/data/H2Oa0b.txt'
+    R12['1'] = path_HE60 + '/data/H2OabCCRR.txt' #'/data/H2Oa0b.txt'
     
     #RECORD 12b: Numbre of ac-x files
     R12['2'] = '1'

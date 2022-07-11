@@ -19,8 +19,8 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 0
-RUN = 1
+CREATE_BATCHRUN_FILES = 1
+RUN = 0
 CREATE_OUTPUT = 0
 PLOT = 0
 
@@ -33,6 +33,12 @@ path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
 cd.check_dir_HE60(path_HE60)
 cd.check_dir(path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
+#%%
+if not os.path.exists('Input.xlsx'):
+    shutil.copy2('Input_template.xlsx', 'Input.xlsx')
+    print('Created: "Input.xlsx".')
+    sys.exit()
+    
 #%%
 Inputs = pd.read_excel('Input.xlsx', engine = 'openpyxl')
 
@@ -292,9 +298,9 @@ cd.check_dir(path_batchruns)
 tf.transfer(path_batchruns, path_HE60 + os.sep + 'run/batch')
 
 # Datos de a y b:
-#path_ab = path + os.sep +'/DATA'
-#cd.check_dir(path_ab)
-tf.transfer(path + os.sep + 'DATA', path_HE60 + os.sep + 'data/DATA_SS')
+path_ab = path + os.sep +'DATA'
+cd.check_dir(path_ab)
+tf.transfer(path_ab, path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
 
 #%%

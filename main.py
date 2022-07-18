@@ -5,8 +5,11 @@ import os
 import shutil
 import itertools
 
-path = os.path.dirname(os.path.realpath('__file__'))
+# path = os.path.dirname(os.path.realpath('__file__'))
+# sys.path.append(path)
+path = os.sep.join(os.path.dirname(os.path.realpath('__file__')).split(os.sep)[:-1])
 sys.path.append(path)
+
 
 #%%
 import ab
@@ -20,15 +23,14 @@ import Graficar_HL as ghl
 
 # Flags:
 CREATE_BATCHRUN_FILES = 1
-RUN = 0
-CREATE_OUTPUT = 0
+RUN = 1
+CREATE_OUTPUT = 1
 PLOT = 0
 
 #%%
 # Verificación del directorio HE60:
-path_HE60 = path.split(os.sep)
-del path_HE60[len(path_HE60)-1]
-path_HE60 = os.sep.join(path_HE60) + os.sep + 'HE60'
+path_HL = path + os.sep + 'HL'
+path_HE60 = path + os.sep + 'HE60'
 
 cd.check_dir_HE60(path_HE60)
 cd.check_dir(path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
@@ -53,7 +55,7 @@ Id_min_run = Inputs['Id_min_run'][0]
 Id_max_run = Inputs['Id_max_run'][0]
 
 # Back up del Input:
-path_inputs = path + os.sep + 'Inputs'
+path_inputs = path_HL + os.sep + 'Inputs'
 cd.check_dir(path_inputs)
 shutil.copyfile('Input.xlsx', path_inputs + os.sep + 'Input_%s.xlsx'%Tag)
 
@@ -286,19 +288,19 @@ if CREATE_BATCHRUN_FILES:
         hlb.create_batchrun_file(path_HE60, Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
     
     # Archivo de Id:
-    cd.check_dir(path + os.sep + 'Inputs')
-    DF.to_excel(path + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, index = False)
+    cd.check_dir(path_HL + os.sep + 'Inputs')
+    DF.to_excel(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, index = False)
 #%%
 
 # Transferencia de los archivos:
     
 # Batchruns:
-path_batchruns = path + os.sep + 'batchruns'
+path_batchruns = path_HL + os.sep + 'batchruns'
 cd.check_dir(path_batchruns)
 tf.transfer(path_batchruns, path_HE60 + os.sep + 'run/batch')
 
 # Datos de a y b:
-path_ab = path + os.sep +'DATA'
+path_ab = path_HL + os.sep +'DATA'
 cd.check_dir(path_ab)
 tf.transfer(path_ab, path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
@@ -328,7 +330,8 @@ Output_filename = 'Output_' + Tag
 for t_v in theta_view:
     for p_v in phi_view:
         if CREATE_OUTPUT:
-            # op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
-            op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_start, Id_max, t_v, p_v)
+
+            # op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_start, Id_max, t_v, p_v)
+            op.create_output(path, Tag, Comment, Id_start, Id_max, t_v, p_v)
         if PLOT:
             ghl.Graficar(path, Tag, t_v, p_v, save=False)

@@ -68,7 +68,7 @@ def check_warnings(WARNINGS, Id, S):
         WARNINGS.loc[Id, 'Warnings'] = S
     
 #%%
-def create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
+def create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_output, theta_view, phi_view):
     #%%
     path_HL = path + os.sep + 'HL'
     path_HE60 = path + os.sep + 'HE60'
@@ -86,14 +86,14 @@ def create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
     Id_max = min(int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1, Id_max)
     
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
-    output_filename = path_HL + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min, Id_max)
+    output_filename = path_HL + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min_output, Id_max_output-1)
     
     # Chequeo de sobreescritura:
     # output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
     is_file = os.path.isfile(output_filename)
     if is_file:
         print('\n"%s" already exists.'%output_filename)
-        input('Overwrite (ENTER)?')     
+        continuar()
     
     # files = glob.glob(path_printouts + os.sep + 'P*_' + Tag + '.txt')
     # Id_max = len(files)
@@ -151,8 +151,8 @@ def create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
     
     MISSING = []
     
-    for Id in range(Id_min, Id_max):
-        print('\r%6d/%6d'%(Id, Id_max-1), end='')
+    for Id in range(Id_min_output, Id_max_output):
+        print('\r%6d/%6d'%(Id, Id_max_output-1), end='')
 
         # Creamos la columna 'Id':
         for df in DF:
@@ -317,7 +317,7 @@ def create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view):
     #######
     path_runtimes = path_HL + os.sep + 'Outputs' + os.sep + 'run_times'
     cd.check_dir(path_runtimes)
-    RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%06d-%06d.csv'%(Id_min, Id_max))
+    RUN_TIMES.to_csv(path_runtimes + os.sep + Output_file_name + '_%06d-%06d.csv'%(Id_min_output, Id_max_output))
     
 
     
@@ -363,7 +363,7 @@ if __name__=='__main__':
     '''
     
     # TAGS = ['Tesis_v7', 'v8', 'v8_no_fl', 'v9_no_fl']
-    Tag = 'v8'
+    Tag = 'test'
     
     path = os.sep.join(os.path.dirname(os.path.realpath('__file__')).split(os.sep)[:-1])
     sys.path.append(path)
@@ -387,12 +387,15 @@ if __name__=='__main__':
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [0, 2000]
+    [Id_min, Id_max] = [0, 5]
+    
+    # En el modo manual del output, las el intervalo del output no depende del de corrida:
+    [Id_min_output, Id_max_output] = [Id_min, Id_max]
     
     # Chequeo de Droot y Proot:
     check_output_files(Tag, path_HE60, Id_min, Id_max)
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        create_output(path, Tag, Comment, Id_min, Id_max, theta_view, phi_view)
+        create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_output, theta_view, phi_view)
     

@@ -54,6 +54,10 @@ Id_start = Inputs['Id_start'][0]
 Id_min_run = Inputs['Id_min_run'][0]
 Id_max_run = Inputs['Id_max_run'][0]
 
+# Límites para el output:
+Id_min_output = Inputs['Id_min_output'][0]
+Id_max_output = Inputs['Id_max_output'][0]
+
 # Back up del Input:
 path_inputs = path_HL + os.sep + 'Inputs'
 cd.check_dir(path_inputs)
@@ -161,6 +165,9 @@ if pd.isna(Id_max_run):
 Id_min_run = int(Id_min_run)
 Id_max_run = int(Id_max_run)
 
+Id_min_output = int(Id_min_output)
+Id_max_output = int(Id_max_output)
+
 # Corrección en caso de que Id_max_run>Id_max:
 Id_max_run = min(Id_max_run, Id_max)
 
@@ -186,13 +193,18 @@ print('Id_max_run:\t%6d'%Id_max_run)
 
 print(50*'-')
 
+print('Id_min_output:\t%6d'%Id_min_output)
+print('Id_max_output:\t%6d'%Id_max_output)
+
+print(50*'-')
+
 print('\nCHL (%d values):\t'%len(CHL), CHL)
 print('\nCDOM (%d values):\t'%len(CDOM), CDOM)
 print('\nNAP (%d values):\t'%len(NAP), NAP)
 
 print(50*'-')
 
-print('\Astar_NAP_443:\t', Astar_NAP_443)
+print('\nAstar_NAP_443:\t', Astar_NAP_443)
 print('\nAstar_NAP_offset:\t', Astar_NAP_offset)
 print('\nBstar_NAP_555:\t', Bstar_NAP_555)
 print('\nS_NAP:\t', S_NAP)
@@ -332,6 +344,6 @@ for t_v in theta_view:
         if CREATE_OUTPUT:
 
             # op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_start, Id_max, t_v, p_v)
-            op.create_output(path, Tag, Comment, Id_start, Id_max, t_v, p_v)
+            op.create_output(path, Tag, Comment, Id_start, Id_max, Id_min_output, Id_max_output, t_v, p_v)
         if PLOT:
             ghl.Graficar(path, Tag, t_v, p_v, save=False)

@@ -20,7 +20,6 @@ import check_dir as cd
 
 
 def transfer(orig_dir, dest_dir):
-    print('\nMoving files...')
     
     os.chdir(orig_dir)
     files = os.listdir()
@@ -35,8 +34,6 @@ def transfer(orig_dir, dest_dir):
         shutil.move(file, dest_dir)
         
         
-    print('Done.\n')
-    
     return 
 
 def transfer_PD_files(Tag, path_HE60):

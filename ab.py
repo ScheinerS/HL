@@ -72,7 +72,7 @@ def save_to_file(filename, x, y):
     # No quitar el encabezado. Hydrolight remueve las primeras diez líneas de datos si no encuentra encabezado en el archivo. Ver sección 7, pág. 65 de la TechDoc.
     header = '\\begin_header \end_header'
     
-    DF.to_csv('DATA/' + filename + '.txt', sep='\t', index=False, header=[header, ''])
+    DF.to_csv('DATA' + os.sep + filename + '.txt', sep='\t', index=False, header=[header, ''])
     
     return
 

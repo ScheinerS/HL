@@ -22,9 +22,9 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 0
+CREATE_BATCHRUN_FILES = 1
 RUN = 0
-CREATE_OUTPUT = 1
+CREATE_OUTPUT = 0
 PLOT = 0
 
 #%%
@@ -270,6 +270,16 @@ DF['windspeed'] = None
 DF['fluorescence'] = None
 
 #%%
+
+# Verificacion de directorios:
+
+path_ab = path_HL + os.sep +'DATA'
+cd.check_dir(path_ab)
+
+path_batchruns = path_HL + os.sep + 'batchruns'
+cd.check_dir(path_batchruns)
+
+#%%
 # Creamos los archivos de a y b para cada componente (CHL, NAP, CDOM):
 
 if CREATE_BATCHRUN_FILES:
@@ -311,15 +321,11 @@ if CREATE_BATCHRUN_FILES:
 #%%
 
 # Transferencia de los archivos:
-    
+
 # Batchruns:
-path_batchruns = path_HL + os.sep + 'batchruns'
-cd.check_dir(path_batchruns)
 tf.transfer(path_batchruns, path_HE60 + os.sep + 'run/batch')
 
 # Datos de a y b:
-path_ab = path_HL + os.sep +'DATA'
-cd.check_dir(path_ab)
 tf.transfer(path_ab, path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
 
 

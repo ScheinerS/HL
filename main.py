@@ -22,9 +22,9 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 1
+CREATE_BATCHRUN_FILES = 0
 RUN = 0
-CREATE_OUTPUT = 0
+CREATE_OUTPUT = 1
 PLOT = 0
 
 #%%
@@ -157,7 +157,7 @@ if pd.isna(Id_start):
     Id_start = 0
 
 if pd.isna(Id_min_run):
-    Id_min_run = 0
+    Id_min_run = Id_start
 
 if pd.isna(Id_max_run):
     Id_max_run = Id_max
@@ -174,8 +174,10 @@ if pd.isna(Id_max_output):
 Id_min_output = int(Id_min_output)
 Id_max_output = int(Id_max_output)
 
-# Corrección en caso de que Id_max_run>Id_max:
+# Corrección si Id_max_run>Id_max:
 Id_max_run = min(Id_max_run, Id_max)
+# Corrección si Id_max_output>Id_max:
+Id_max_output = min(Id_max_output, Id_max)
 
 #%%
 
@@ -317,17 +319,16 @@ if CREATE_BATCHRUN_FILES:
     
     # Archivo de Id:
     cd.check_dir(path_HL + os.sep + 'Inputs')
-    DF.to_excel(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, index = False)
+    DF.to_excel(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s_%06d-%06d.xlsx'%(Tag, Id_min_output, Id_max_output), index = False)
 #%%
 
 # Transferencia de los archivos:
 
 # Batchruns:
-tf.transfer(path_batchruns, path_HE60 + os.sep + 'run/batch')
+tf.transfer(path_batchruns, path_HE60 + os.sep + 'run' + os.sep + 'batch')
 
 # Datos de a y b:
 tf.transfer(path_ab, path_HE60 + os.sep + 'data' + os.sep + 'DATA_SS')
-
 
 #%%
 
@@ -346,7 +347,6 @@ path_digital = path_HE60 + os.sep + 'output' + os.sep + 'HydroLight' + os.sep + 
 
 tf.transfer_PD_files(Tag, path_HE60)
 
-
 #%%
 
 Output_filename = 'Output_' + Tag
@@ -356,6 +356,6 @@ for t_v in theta_view:
         if CREATE_OUTPUT:
 
             # op.create_output(path_HE60, path, path_printouts, Tag, Comment, Id_start, Id_max, t_v, p_v)
-            op.create_output(path, Tag, Comment, Id_start, Id_max, Id_min_output, Id_max_output, t_v, p_v)
+            op.create_output(path, Tag, Comment, Id_min_output, Id_max_output, t_v, p_v)
         if PLOT:
             ghl.Graficar(path, Tag, t_v, p_v, save=False)

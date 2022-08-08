@@ -68,7 +68,7 @@ def check_warnings(WARNINGS, Id, S):
         WARNINGS.loc[Id, 'Warnings'] = S
     
 #%%
-def create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_output, theta_view, phi_view):
+def create_output(path, Tag, Comment, Id_min_output, Id_max_output, theta_view, phi_view):
     #%%
     path_HL = path + os.sep + 'HL'
     path_HE60 = path + os.sep + 'HE60'
@@ -80,13 +80,13 @@ def create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_outp
     print('\ntheta_view = %g,\tphi_view = %g'%(theta_view, phi_view))
     cd.check_dir(path_HL + os.sep + 'Outputs')
     
-    files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
+    # files = sorted(glob.glob(path_printouts + os.sep + Tag + os.sep + 'P*' + Tag + '.txt'))
 
-    Id_min = max(0, Id_min)
-    Id_max = min(int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1, Id_max)
+    # Id_min = max(0, Id_min)
+    # Id_max = int(files[-1].split('.')[0].split(os.sep)[-1].split('_')[0].strip('P')) + 1
     
     Output_file_name = 'Output_' + Tag # Nombre para el archivo de salida.
-    output_filename = path_HL + os.sep + 'Outputs' + os.sep + Output_file_name + '_vaz%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min_output, Id_max_output-1)
+    output_filename = path_HL + os.sep + 'Outputs' + os.sep + Output_file_name + '_vtheta%dvphi%d'%(theta_view, phi_view) + '_%06d-%06d.xlsx'%(Id_min_output, Id_max_output-1)
     
     # Chequeo de sobreescritura:
     # output_file = path + os.sep + 'Outputs' + os.sep + 'Output_' + Tag + '.xlsx'
@@ -139,8 +139,17 @@ def create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_outp
     DF = [ALL_rhow, ALL_a_nw, ALL_a_chl, ALL_a_cdom, ALL_a_nap, ALL_b_p, ALL_b_chl, ALL_b_nap, ALL_bb_p, ALL_bb_chl, ALL_bb_nap]
     
     #WAVELENGTHS = np.arange(350,952.5, 2.5)
-
-    I = pd.read_excel(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s.xlsx'%Tag, engine = 'openpyxl')
+    
+    Id_files = sorted(glob.glob(path_HL + os.sep + 'Inputs' + os.sep + 'Id_%s_*.xlsx'%Tag))
+    F = pd.read_excel(Id_files[0], engine = 'openpyxl')
+    I = pd.DataFrame(columns=F.columns)
+    
+    for file in Id_files:
+        F = pd.read_excel(file, engine = 'openpyxl')
+        I = pd.concat([I, F])
+    
+    I = I.drop_duplicates()
+    
     print(Tag)
     
     WARNINGS = pd.DataFrame()
@@ -387,15 +396,12 @@ if __name__=='__main__':
     # Angles = [[0, 0], [40, 135]]
     Angles = [[40, 135]]
     
-    [Id_min, Id_max] = [0, 5]
-    
-    # En el modo manual del output, las el intervalo del output no depende del de corrida:
-    [Id_min_output, Id_max_output] = [Id_min, Id_max]
+    [Id_min_output, Id_max_output] = [10, 20]
     
     # Chequeo de Droot y Proot:
-    check_output_files(Tag, path_HE60, Id_min, Id_max)
+    check_output_files(Tag, path_HE60, Id_min_output, Id_max_output)
     
     for a in Angles:
         [theta_view, phi_view] = [a[0], a[1]]
-        create_output(path, Tag, Comment, Id_min, Id_max, Id_min_output, Id_max_output, theta_view, phi_view)
+        create_output(path, Tag, Comment, Id_min_output, Id_max_output, theta_view, phi_view)
     

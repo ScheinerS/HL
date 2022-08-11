@@ -149,6 +149,7 @@ def create_output(path, Tag, Comment, Id_min_output, Id_max_output, theta_view, 
         I = pd.concat([I, F])
     
     I = I.drop_duplicates()
+    I.index = I['Id']
     
     print(Tag)
     
@@ -172,6 +173,7 @@ def create_output(path, Tag, Comment, Id_min_output, Id_max_output, theta_view, 
         # Sheet 1:
         
         INPUTS.loc[Id, 'Id'] = str('%06d'%Id)
+        # INPUTS.index = INPUTS['Id']
         
         for var in I.columns[1:]:
             INPUTS.loc[Id, var] = I[var].at[Id]

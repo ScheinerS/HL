@@ -22,8 +22,8 @@ import Graficar_HL as ghl
 #%%
 
 # Flags:
-CREATE_BATCHRUN_FILES = 0
-RUN = 0
+CREATE_BATCHRUN_FILES = 1
+RUN = 1
 CREATE_OUTPUT = 1
 PLOT = 0
 
@@ -162,8 +162,8 @@ if pd.isna(Id_min_run):
 if pd.isna(Id_max_run):
     Id_max_run = Id_max
 
-Id_min_run = int(Id_min_run)
-Id_max_run = int(Id_max_run)
+Id_min_run = Id_start + int(Id_min_run)
+Id_max_run = Id_start + int(Id_max_run)
 
 if pd.isna(Id_min_output):
     Id_min_output = Id_min_run
@@ -171,8 +171,8 @@ if pd.isna(Id_min_output):
 if pd.isna(Id_max_output):
     Id_max_output = Id_max_run
     
-Id_min_output = int(Id_min_output)
-Id_max_output = int(Id_max_output)
+Id_min_output = Id_start + int(Id_min_output)
+Id_max_output = Id_start + int(Id_max_output)
 
 # Corrección si Id_max_run>Id_max:
 Id_max_run = min(Id_max_run, Id_max)

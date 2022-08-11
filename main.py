@@ -313,7 +313,7 @@ if CREATE_BATCHRUN_FILES:
         windspeed = line[17]
         fluorescence = line[18]
         
-        ab.create_data_files(str('%06d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
+        ab.create_data_files(Tag, str('%06d'%Id), chl, nap, cdom, a_c_star_660, e_c_star_660, astar_nap_443, astar_nap_offset, bstar_nap_555, s_nap, s_cdom, gamma_c_nap)
         
         hlb.create_batchrun_file(path_HE60, Id, Tag, Comment, chl, cdom, nap, s_cdom, spf_ff_bb_b_nap, spf_ff_bb_b_chl, suntheta, sunphi, cloud, windspeed, fluorescence)
     

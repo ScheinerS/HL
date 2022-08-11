@@ -66,9 +66,9 @@ def create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, sp
 
     #RECORD 5d: Absorption data files
     Record_5d_H20 = path_HE60 + '/data/H2OabCCRR.txt' # '/data/H2Oa0b.txt' # '/data/H2OabCCRR.txt'
-    Record_5d_CHL = path_HE60 + '/data/DATA_SS/%06d_astar_CHL.txt'%(Id)
+    Record_5d_CHL = path_HE60 + '/data/DATA_SS/%s_%06d_astar_CHL.txt'%(Tag, Id)
     Record_5d_CDOM = 'dummyastar.txt'
-    Record_5d_NAP = path_HE60 + '/data/DATA_SS/%06d_astar_NAP.txt'%(Id)
+    Record_5d_NAP = path_HE60 + '/data/DATA_SS/%s_%06d_astar_NAP.txt'%(Tag, Id)
        
     R5['d'] = Record_5d_H20 + '\n' + Record_5d_CHL + '\n' + Record_5d_CDOM + '\n' + Record_5d_NAP
     
@@ -86,9 +86,9 @@ def create_batchrun_file(path_HE60, Id, Tag, Comment, CHL, CDOM, NAP, S_CDOM, sp
     
     #RECORD 5f: Scattering data files
     Record_5f_H20 = 'bstarDummy.txt'
-    Record_5f_CHL = path_HE60 + '/data/DATA_SS/%06d_bstar_CHL.txt'%(Id)
+    Record_5f_CHL = path_HE60 + '/data/DATA_SS/%s_%06d_bstar_CHL.txt'%(Tag, Id)
     Record_5f_CDOM = 'dummybstar.txt'
-    Record_5f_NAP = path_HE60 + '/data/DATA_SS/%06d_bstar_NAP.txt'%(Id)
+    Record_5f_NAP = path_HE60 + '/data/DATA_SS/%s_%06d_bstar_NAP.txt'%(Tag, Id)
     
     R5['f'] = Record_5f_H20 + '\n' + Record_5f_CHL + '\n' + Record_5f_CDOM + '\n' + Record_5f_NAP
     

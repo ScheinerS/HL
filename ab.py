@@ -79,7 +79,7 @@ def save_to_file(filename, x, y):
 
 #%%
 
-def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
+def create_data_files(Tag, Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP):
     ############################    
     # CHL:
     
@@ -146,7 +146,7 @@ def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_
     # wavelength_CDOM = np.append(wavelength_CDOM, -1)
     ############################
     
-    filename = str(Id)
+    filename = Tag + '_' + str(Id)
     
     save_to_file(filename + '_astar_CHL', wavelength_CHL, a_star_CHL)
     save_to_file(filename + '_bstar_CHL', wavelength_CHL, b_star_CHL)
@@ -162,7 +162,7 @@ def create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_
 if __name__ == "__main__":
 
     # Valores de prueba:
-    # Tag = 'Prueba_tag_ab'
+    Tag = 'Prueba_tag_ab'
     Id = '12345'
     CHL = 0
     NAP = 1
@@ -176,4 +176,4 @@ if __name__ == "__main__":
     S_CDOM = -0.0176
     GAMMA_C_NAP = -0.3749
     
-    create_data_files(Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)
+    create_data_files(Tag, Id, CHL, NAP, CDOM, A_c_star_660, E_c_star_660, ASTAR_NAP_443, Astar_NAP_offset, Bstar_NAP_555, S_NAP, S_CDOM, GAMMA_C_NAP)
